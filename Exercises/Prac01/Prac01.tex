@@ -1,5 +1,43 @@
-\documentclass[letterpaper]{article}
+\documentclass[letterpaper,12pt]{article}
+\usepackage[spanish]{babel}
+\spanishdecimal{.}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage[top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm]{geometry}
 
+\title{Práctica 1 \\ Motores de DC y el circuito puente H}
+\author{M.I. Marco Negrete}
+\date{Robots Móviles y Agentes Inteligentes}
 \begin{document}
-Práctica 1
+\renewcommand{\tablename}{Tabla}
+\maketitle
+\section*{Objetivos}
+\begin{itemize}
+\item Familiarizar al alumno con el uso del sistema operativo Linux, distribución Ubuntu versión 14.04.
+\item Aprender los conceptos básicos de ROS (Robot Operating System).
+\end{itemize}
+
+\section*{Introducción}
+ROS es un \textit{middleware} de código abierto (\textit{open source}) que provee la funcionalidad comúnmente necesaria en el desarrollo de software para robots móviles autónomos, como paso de mensajes y manejo de paquetes. ROS puede describirse en dos niveles conceptuales: el sistema de archivos y el grafo de procesos.
+
+\textbf{El sistema de archivos.} Se refiere al modo en que están organizados los recursos en disco:
+\begin{itemize}
+\item \textbf{\textit{Workspace:}} Se refiere a las carpetas que contienen paquetes de ROS.
+\item \textbf{Paquete:} Es la principal unidad de organización de software en ROS. Pueden contener nodos, bibliotecas, datasets, archivos de configuración y otros.
+\item \textbf{Manifiesto:} Definido por el archivo \texttt{package.xml} en cada paquete. Provee metadatos acerca de cada paquete. 
+\item \textbf{Mensaje:} Archivos con extensión \texttt{.msg}. Definen estructuras de datos para el paso de mensajes en ROS.
+\item \textbf{Servicio:} Archivos con extensión \texttt{.srv}. Definen estructuras de tipo \textit{request-response}. Utilizan mensajes para dicha definición.
+\end{itemize}
+
+\textbf{Grafo de procesos.} Es una red \textit{peer-to-peer} de procesos. Los componentes básicos son:
+\begin{itemize}
+\item \textbf{Mater (roscore):}
+\item \textbf{Servidor de parámetros:}
+\item \textbf{Nodos:}
+\item \textbf{Tópicos:}
+\item \textbf{Servicios:}
+\end{itemize}
+
+\section*{Desarrollo}
+
 \end{document}
