@@ -18,7 +18,9 @@
 \end{itemize}
 
 \section*{Introducción}
-ROS es un \textit{middleware} de código abierto (\textit{open source}) que provee la funcionalidad comúnmente necesaria en el desarrollo de software para robots móviles autónomos, como paso de mensajes y manejo de paquetes. ROS puede describirse en dos niveles conceptuales: el sistema de archivos y el grafo de procesos.
+ROS es un \textit{middleware} de código abierto (\textit{open source}) que provee la funcionalidad comúnmente necesaria en el desarrollo de software para robots móviles autónomos, como paso de mensajes y manejo de paquetes. La robot Justina y los demás robots móviles que se usarán durante el resto del curso utilizan ROS como plataforma de desarrollo, por lo que es importante conocerlo.
+
+ROS puede describirse en dos niveles conceptuales: el sistema de archivos y el grafo de procesos.
 
 \textbf{El sistema de archivos.} Se refiere al modo en que están organizados los recursos en disco:
 \begin{itemize}
@@ -31,11 +33,11 @@ ROS es un \textit{middleware} de código abierto (\textit{open source}) que prov
 
 \textbf{Grafo de procesos.} Es una red \textit{peer-to-peer} de procesos. Los componentes básicos son:
 \begin{itemize}
-\item \textbf{Mater (roscore):}
-\item \textbf{Servidor de parámetros:}
-\item \textbf{Nodos:}
-\item \textbf{Tópicos:}
-\item \textbf{Servicios:}
+\item \textbf{Roscore:} Inicializa el sistema ROS: un máster + rosout + un servidor de parámetros.
+\item \textbf{Nodos:} Es simplemente un ejecutable que usa ROS para comunicarse con otros nodos.
+\item \textbf{Tópicos:} Algo similar a una variable cuyo contenido puede ser compartido entre todos los nodos mediante un patrón de publicación y suscripción. 
+\item \textbf{Servicios:} Otra forma de comunicar nodos pero con un patrón de petición y respuesta.
+\item \textbf{Servidor de parámetros:} Es un diccionario compartido. Todos los nodos pueden leer y escribir parámetros en tiempo de ejecución.
 \end{itemize}
 
 \section*{Desarrollo}
