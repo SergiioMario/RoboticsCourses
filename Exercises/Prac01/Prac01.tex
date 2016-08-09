@@ -4,6 +4,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
 \usepackage[top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm]{geometry}
+\usepackage{hyperref}
 
 \title{Práctica 1 \\ Motores de DC y el circuito puente H}
 \author{M.I. Marco Negrete}
@@ -17,7 +18,7 @@
 \item Aprender los conceptos básicos de ROS (Robot Operating System).
 \end{itemize}
 
-\section*{Introducción}
+\section{Introducción}
 ROS es un \textit{middleware} de código abierto (\textit{open source}) que provee la funcionalidad comúnmente necesaria en el desarrollo de software para robots móviles autónomos, como paso de mensajes y manejo de paquetes. La robot Justina y los demás robots móviles que se usarán durante el resto del curso utilizan ROS como plataforma de desarrollo, por lo que es importante conocerlo.
 
 ROS puede describirse en dos niveles conceptuales: el sistema de archivos y el grafo de procesos.
@@ -40,6 +41,36 @@ ROS puede describirse en dos niveles conceptuales: el sistema de archivos y el g
 \item \textbf{Servidor de parámetros:} Es un diccionario compartido. Todos los nodos pueden leer y escribir parámetros en tiempo de ejecución.
 \end{itemize}
 
-\section*{Desarrollo}
+\section{Desarrollo}
+\subsection{Instalación de Ubuntu 14.04}
+Instale Ubuntu 14.04, para ello, descargue la imagen de la siguiente dirección:
+
+\url{http://releases.ubuntu.com/14.04/}
+
+Para instalar Ubuntu desde Windows, se pueden seguir las instrucciones de la siguiente página:
+
+\url{http://www.ubuntu.com/download/desktop/create-a-usb-stick-on-windows}
+
+Asegúrese de instalar la versión correcta, de 32 o 64 bits. 
+
+\subsection{Instalación de ROS}
+
+Una vez instalado Ubuntu, instale ROS Indigo. Las instrucciones se encuentran en la siguiente página:
+
+\url{http://wiki.ros.org/indigo/Installation/Ubuntu}
+
+En el paso 1.4, seleccione la opción \texttt{Desktop-Full}. Es importante haber instalado Ubuntu 14.04, dado que algunas de las instrucciones contenidas en esta página sólo funcionan correctamente en Ubuntu 13.10 y 14.04. También es muy recomendable instalar todo con las opciones por default, lo que facilitará los desarrollos del resto del curso. 
+
+\subsection{Tutoriales\label{tutorials}}
+
+Ejecute las instrucciones contenidas en los tutoriales 1, 3, 4, 11 y 14 de la siguiente dirección:
+
+\url{http://wiki.ros.org/ROS/Tutorials}
+
+Estos tutoriales sirven para crear dos \textit{paquetes}: el primero contiene dos \textit{nodos}, uno de los cuales publica un \textit{tópico} y el otro se suscribe al mismo; el segundo contiene otros dos nodos, uno de los cuales atiende un \textit{servicio} y el otro lo solicita y espera una respuesta. 
+
+\section{Evaluación}
+
+La práctica se considerará entregada si los cuatro nodos del punto \ref{tutorials} funcionan correctamente, esto es, que la salida sea la descrita en los tutoriales. 
 
 \end{document}
