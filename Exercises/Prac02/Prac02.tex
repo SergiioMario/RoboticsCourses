@@ -70,11 +70,29 @@ source devel/setup.bash
 roslaunch bring_up hardware_simul.launch
 \end{verbatim}
 
-Se mostrará una ventana como la que se observa en la figura \ref{fig:rviz}.
+Se mostrará una ventana como la que se observa en la figura \ref{fig:rviz}. En otra terminal, ejecute el comando (es una sola línea, pero está en dos, por cuestiones de espacio):
+\begin{verbatim}
+rostopic pub -r 10 /hardware/mobile_base/speeds std_msgs/Float32MultiArray 
+    "{data:[0.02, 0.3]}"
+\end{verbatim}
+
+El comando anterior \textit{publica} el \textit{tópico} \texttt{/hardware/mobile\_base/speeds}, que acepta \textit{mensajes} de tipo \texttt{Float32MultiArray}. El valor publicado es un arreglo de dos flotantes $[0.02, 0.3]$. El \textit{nodo} \texttt{/hardware/mobile\_base} está \textit{suscrito} a este tópico y lo que hace es mover las llantas izquiera y derecha del robot con las velocidades correspondientes contenidas en el valor del tópico. Se debe observar que el robot comienza a dar vueltas. 
+
 \begin{figure}
 \centering
-\includegraphics[width=0.8\textwidth]{rviz_initial.png}
+\includegraphics[width=0.9\textwidth]{rviz_initial.png}
 \caption{El visualizador \texttt{rviz}}
 \label{fig:rviz}
 \end{figure}
+
+\subsection{Nodo para mover al robot}
+Escriba un nodo que publique en el tópico \texttt{/hardware/mobile\_base/speeds} las velocidades necesarias para que el robot describa un cuadrado de 1m x 1m. El tópico debe publicarse 10 veces por segundo. El lenguaje puede ser C++ o Python.
+
+\section{Evaluación}
+Para que la práctica se condidere entregada se deben cumplir los siguientes puntos:
+\begin{itemize}
+\item El movimiento del robot en el visualizador debe describir claramente un cuadrado.
+\item El comando \texttt{rostopic echo} debe mostrar que el tópico se está publicando claramente.
+\end{itemize}
+
 \end{document}
