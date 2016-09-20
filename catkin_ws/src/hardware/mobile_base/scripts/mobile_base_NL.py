@@ -11,7 +11,7 @@ from hardware_tools import Roboclaw
 import tf
 
 def printHelp():
-    print "MOBILE BASE BY MARCOSOFT. Options:"
+    print "MOBILE BASE for JustinaNL BY MARCOSOFT. Options:"
     print "\t --port \t Serial port name. If not provided, the default value is \"/dev/ttyACM0\""
     print "\t --simul\t Simulation mode."
     print " - Mobile base can be moved by publishing either mobile_base/cmd_vel or"
