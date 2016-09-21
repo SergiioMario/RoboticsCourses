@@ -1,22 +1,34 @@
 <launch>
-    <remap from="/hardware/mobile_base/odometry" to="/navigation/localization/base_pose_ground_truth"/>
-    <remap from="/navigation/localization/amcl_pose" to="/navigation/localization/current_pose"/>
-    <param name="robot_description" command="cat $(find config_files)/justina.xml" />
+    <param name="robot_description" command="cat $(find config_files)/urdfs/justinaNL.xml" />
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher"/>
-    <node name="gmapping_link_publisher" pkg="tf" type="static_transform_publisher" args="0 0 0.0 0 0 0 map odom 30"/>
     <group ns="hardware">
-           <node name="mobile_base" pkg="mobile_base" type="omni_base_node.py" output="screen" args="--simul"/>
-           <node name="left_arm" pkg="arms" type="left_arm_simul_node.py" output="screen"/>
-           <node name="right_arm" pkg="arms" type="right_arm_simul_node.py" output="screen"/>
-           <node name="head" pkg="head" type="head_simul_node.py" output="screen"/>
-           <node name="torso" pkg="torso" type="torso_simul_node.py" output="screen"/>
-           <node name="joy" pkg="joy" type="joy_node" output="screen"/>
-           <node name="laser_simul" pkg="laser_simulator" type="laser_simulator_node" output="screen"/>
+        <node name="mobile_base" pkg="mobile_base" type="mobile_base_NL.py" output="screen" args="--port /dev/justinaRC30"/>
+        <node name="left_arm" pkg="arms" type="left_arm_simul_node.py" output="screen"/>
+        <node name="right_arm" pkg="arms" type="right_arm_simul_node.py" output="screen"/>
+        <node name="head" pkg="head" type="head_simul_node.py" output="screen"/>
+        <node name="torso" pkg="torso" type="torso_simul_node.py" output="screen"/>
+        <node name="joy" pkg="joy" type="joy_node" output="screen"/>
+        <node name="hokuyo_node" pkg="hokuyo_node" type="hokuyo_node" output="screen">
+            <param name="port" type="string" value="/dev/justinaHokuyo" />
+            <param name="frame_id" type="string" value="laser_link" />
+        </node>
     </group>
 	<group ns="hri">
-	       <node name="rviz" pkg="rviz" type="rviz" args="-d $(find config_files)/simul_config.rviz"/>
+	    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find config_files)/mapping_config.rviz"/>
 	</group>
 	<group ns="interoperation">
-	       <node name="joystick_teleop" pkg="joystick_teleop" type="joystick_teleop_node.py" output="screen" />
+	    <node name="joystick_teleop" pkg="joystick_teleop" type="joystick_teleop_NL.py" output="screen" />
 	</group>
+    <node name="gmapping" pkg="gmapping" type="slam_gmapping" args="scan:=/hardware/scan" output="screen">
+        <param name="map_update_interval" value="1.0" />
+        <param name="maxUrange" value="7.8"/>
+        <param name="linearUpdate" value="0.3"/>
+        <param name="angularUpdate" value="0.2"/>
+        <param name="xmin" value="-50"/>
+        <param name="ymin" value="-20"/>
+        <param name="xmax" value="50"/>
+        <param name="ymax" value="20"/>
+        <param name="maxRange" value="8.0"/>
+        <param name="minimumScore" value="100"/>
+    </node>
 </launch>

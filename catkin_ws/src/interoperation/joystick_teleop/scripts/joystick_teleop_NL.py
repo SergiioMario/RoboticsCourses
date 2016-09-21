@@ -83,7 +83,7 @@ def main():
 
     while not rospy.is_shutdown():
         if math.fabs(leftSpeed) > 0 or math.fabs(rightSpeed) > 0:
-            msgSpeeds.data = [leftSpeed, rightSpeed]
+            msgSpeeds.data = [leftSpeed / 2, rightSpeed / 2]
             pubSpeeds.publish(msgSpeeds)
 
 

@@ -7,7 +7,7 @@ from std_msgs.msg import Float32MultiArray
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import TransformStamped
 from geometry_msgs.msg import Twist
-from hardware_tools import Roboclaw
+from hardware_tools import roboclaw_driver as Roboclaw
 import tf
 
 def printHelp():
@@ -47,8 +47,8 @@ def callbackCmdVel(msg):
     global leftSpeed
     global righSpeed
     global newSpeedData
-    leftSpeed = msg.linear.x - msg.angular.z*0.48/2.0
-    rightSpeed = msg.linear.x + msg.angular.z*0.48/2.0
+    leftSpeed = msg.linear.x - msg.angular.z*0.44/2.0
+    rightSpeed = msg.linear.x + msg.angular.z*0.44/2.0
     if leftSpeed > 1:
         leftSpeed = 1
     elif leftSpeed < -1:
@@ -60,9 +60,9 @@ def callbackCmdVel(msg):
     newSpeedData = True
 
 def calculateOdometry(currentPos, leftEnc, rightEnc): #Encoder measurements are assumed to be in ticks
-    leftEnc = leftEnc * 0.39/980 #From ticks to meters
-    rightEnc = rightEnc * 0.39/980
-    deltaTheta = (rightEnc - leftEnc)/0.48 #0.48 is the robot diameter
+    leftEnc = leftEnc * 0.58/16000 #From ticks to meters
+    rightEnc = rightEnc * 0.58/16000
+    deltaTheta = (rightEnc - leftEnc)/0.44 #0.44 is the robot diameter
     if math.fabs(deltaTheta) >= 0.0001:
         rg = (leftEnc + rightEnc)/(2*deltaTheta)
         deltaX = rg*math.sin(deltaTheta)
@@ -95,7 +95,7 @@ def main(portName, simulated):
         address = 0x80
         print "MobileBase.-> Serial port openned on \"" + portName + "\" at 38400 bps (Y)"
         print "MobileBase.-> Clearing previous encoders readings"
-        Roboclaw.ResetQuadratureEncoders(address)
+        Roboclaw.ResetEncoders(address)
     ###Variables for setting tire speeds
     global leftSpeed
     global rightSpeed
@@ -114,32 +114,31 @@ def main(portName, simulated):
                 leftSpeed = int(leftSpeed*127)
                 rightSpeed = int(rightSpeed*127)
                 if leftSpeed >= 0:
-                    Roboclaw.DriveForwardM2(address, leftSpeed)
+                    Roboclaw.ForwardM2(address, leftSpeed)
                 else:
-                    Roboclaw.DriveBackwardsM2(address, -leftSpeed)
+                    Roboclaw.BackwardM2(address, -leftSpeed)
                 if rightSpeed >= 0:
-                    Roboclaw.DriveForwardM1(address, rightSpeed)
+                    Roboclaw.ForwardM1(address, rightSpeed)
                 else:
-                    Roboclaw.DriveBackwardsM1(address, -rightSpeed)
+                    Roboclaw.BackwardM1(address, -rightSpeed)
         else:
             speedCounter -= 1
             if speedCounter == 0:
                 if not simulated:
-                    Roboclaw.DriveForwardM1(address, 0)
-                    Roboclaw.DriveForwardM2(address, 0)
+                    Roboclaw.ForwardM1(address, 0)
+                    Roboclaw.ForwardM2(address, 0)
                 else:
                     leftSpeed = 0
                     rightSpeed = 0
             if speedCounter < -1:
                 speedCounter = -1
         if not simulated:
-            encoderLeft = -Roboclaw.ReadQEncoderM2(address)
-            encoderRight = -Roboclaw.ReadQEncoderM1(address) #The negative sign is just because it is the way the encoders are wired to the roboclaw
-            Roboclaw.ResetQuadratureEncoders(address)
+            c1, encoderLeft, c2 =  Roboclaw.ReadEncM2(address)
+            d1, encoderRight, d2 = Roboclaw.ReadEncM1(address)
+            Roboclaw.ResetEncoders(address)
         else:
-            encoderLeft = leftSpeed * 0.1 * 980 / 0.39
-            encoderRight = rightSpeed * 0.1 * 980 / 0.39
-        ###Odometry calculation
+            encoderLeft = leftSpeed * 0.1 * 16000 / 0.58
+            encoderRight = rightSpeed * 0.1 * 16000 / 0.58        ###Odometry calculation
         robotPos = calculateOdometry(robotPos, encoderLeft, encoderRight)
         #print "Encoders: " + str(encoderLeft) + "  " + str(encoderRight)
         ##Odometry and transformations
@@ -165,15 +164,15 @@ def main(portName, simulated):
         ###Reads battery and publishes the corresponding topic
         motorBattery = 18.5
         if not simulated:
-            motorBattery = Roboclaw.ReadMainBattVoltage(address)
+            motorBattery = Roboclaw.ReadMainBatteryVoltage(address)[1]/10.0 + 0.2 #There is an offset in battery reading
         msgBattery = Float32()
         msgBattery.data = motorBattery
         pubBattery.publish(msgBattery)
         rate.sleep()
     #End of while
     if not simulated:
-        Roboclaw.DriveForwardM1(address, 0)
-        Roboclaw.DriveForwardM2(address, 0)
+        Roboclaw.ForwardM1(address, 0)
+        Roboclaw.ForwardM2(address, 0)
         Roboclaw.Close()
 #end of main()
 
