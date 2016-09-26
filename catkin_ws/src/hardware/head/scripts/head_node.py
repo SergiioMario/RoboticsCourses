@@ -5,7 +5,7 @@ from std_msgs.msg import Float32MultiArray
 from std_msgs.msg import Float32
 from geometry_msgs.msg import TransformStamped
 from sensor_msgs.msg import JointState
-from hardware_tools import Dynamixel
+from hardware_tools import dynamixel_lib as Dynamixel
 import tf
 
 
@@ -59,13 +59,14 @@ def callbackTorque(msg):
 def callbackPosHead(msg):
     global dynMan1
     global modeTorque
+
     if modeTorque != 1:
         ## Change to Position mode
         dynMan1.SetCWAngleLimit(5, 0)
-        dynMan1.SetCCWAngleLimit(5, 4095)
+        dynMan1.SetCCWAngleLimit(5, 1023)
 
-        dynMan1.SetCWAngleLimit(1, 0)
-        dynMan1.SetCCWAngleLimit(1, 2100)
+        dynMan1.SetCWAngleLimit(1, 411)
+        dynMan1.SetCCWAngleLimit(1, 800)
         
         dynMan1.SetTorqueEnable(5, 1)
         dynMan1.SetTorqueEnable(1, 1)
@@ -79,6 +80,7 @@ def callbackPosHead(msg):
     ### Set GoalPosition 
     goalPosPan = msg.data[0]
     goalPosTilt = msg.data[1]
+
     if goalPosPan < -1.1:
         goalPosPan = -1.1
     if goalPosPan > 1.1:
@@ -89,10 +91,10 @@ def callbackPosHead(msg):
         goalPosTilt = 0
 
     # Conversion float to bits
-    goalPosTilt = int(( (goalPosTilt)/(360.0/4095.0*3.14159265358979323846/180.0) ) + 2048)
-    goalPosPan = int((  (goalPosPan)/(360.0/4095.0*3.14159265358979323846/180.0) ) + 1750 )
+    goalPosTilt = int((-(goalPosTilt)/(300.0/1023.0*3.14159265358979323846/180.0) ) + 512)
+    goalPosPan = int((  (goalPosPan)/(300.0/1023.0*3.14159265358979323846/180.0) ) + 529 )
 
-    if goalPosTilt >= 0 and goalPosTilt <= 4095 and goalPosPan >= 1023 and goalPosPan <=3069:
+    if goalPosTilt >= 411 and goalPosTilt <= 800 and goalPosPan >= 0 and goalPosPan <=1023:
         dynMan1.SetGoalPosition(5, goalPosPan)
         dynMan1.SetGoalPosition(1, goalPosTilt)
     #else:
@@ -122,12 +124,12 @@ def main(portName, portBaud):
     i = 0
 
     ### Set controller parameters
-    dynMan1.SetDGain(1, 25)
-    dynMan1.SetPGain(1, 16)
-    dynMan1.SetIGain(1, 1)
-    dynMan1.SetDGain(5, 25)
-    dynMan1.SetPGain(5, 16)
-    dynMan1.SetIGain(5, 1)
+    #dynMan1.SetDGain(1, 25)
+    #dynMan1.SetPGain(1, 16)
+    #dynMan1.SetIGain(1, 1)
+    #dynMan1.SetDGain(5, 25)
+    #dynMan1.SetPGain(5, 16)
+    #dynMan1.SetIGain(5, 1)
 
 
     ### Set servos features
@@ -155,13 +157,13 @@ def main(portName, portBaud):
     msgCurrentPose.data = [0, 0]
     
 
-    dynMan1.SetCWAngleLimit(5, 1023)
-    dynMan1.SetCCWAngleLimit(5, 3069)
+    dynMan1.SetCWAngleLimit(5, 0)
+    dynMan1.SetCCWAngleLimit(5, 1023)
 
-    dynMan1.SetCWAngleLimit(1, 0)
-    dynMan1.SetCCWAngleLimit(1, 2100)
-    dynMan1.SetGoalPosition(5, 1750)
-    dynMan1.SetGoalPosition(1, 2048)
+    dynMan1.SetCWAngleLimit(1, 411)
+    dynMan1.SetCCWAngleLimit(1, 800)
+    dynMan1.SetGoalPosition(5, 529)
+    dynMan1.SetGoalPosition(1, 512)
  
     dynMan1.SetTorqueEnable(5, 1)
     dynMan1.SetTorqueEnable(1, 1)
@@ -176,32 +178,8 @@ def main(portName, portBaud):
         # Pose in bits
         panPose = dynMan1.GetPresentPosition(5)
         tiltPose = dynMan1.GetPresentPosition(1)
-        #print str(panPose) + " " + str(tiltPose)
-        # Pose in rad
-        if panPose != 0:
-            pan = (panPose - 1750)*360/4095*3.14159265358979323846/180
-        else:
-            pan = lastPan
-        if tiltPose != 0:
-            tilt = (tiltPose - 2048)*360/4095*3.14159265358979323846/180
-        else:
-            tilt = lastTilt
-        lastPan = pan
-        lastTilt = tilt 
-        
-        jointStates.header.stamp = rospy.Time.now()
-        jointStates.position[0] = pan
-        jointStates.position[1] = -tilt #A tilt > 0 goes upwards, but to keep a dextereous system, positive tilt should go downwards
-        pubJointStates.publish(jointStates)
-        msgCurrentPose.data = [pan, tilt]
-        pubCurrentPose.publish(msgCurrentPose)
-
-        if i == 10:
-            msgBatery = float(dynMan1.GetPresentVoltage(5)/10.0)
-            pubBatery.publish(msgBatery)
-            i=0
-        i+=1
-        
+        print str(panPose) + " " + str(tiltPose)
+            
         loop.sleep()
 
 if __name__ == '__main__':
@@ -211,7 +189,7 @@ if __name__ == '__main__':
         elif "-h" in sys.argv:
             printHelp()
         else:
-            portName = "/dev/ttyUSB1"
+            portName = "/dev/justinaHead"
             portBaud = 1000000
             if "--port" in sys.argv:
                 portName = sys.argv[sys.argv.index("--port") + 1]
