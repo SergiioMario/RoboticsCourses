@@ -7,7 +7,9 @@
         <node name="right_arm" pkg="arms" type="right_arm_simul_node.py" output="screen"/>
         <node name="head" pkg="head" type="head_simul_node.py" output="screen"/>
         <node name="torso" pkg="torso" type="torso_simul_node.py" output="screen"/>
-        <node name="joy" pkg="joy" type="joy_node" output="screen"/>
+        <node name="joy" pkg="joy" type="joy_node" output="screen">
+            <param name="dev" value="/dev/justinaJoystick"/>
+        </node>
         <node name="hokuyo_node" pkg="hokuyo_node" type="hokuyo_node" output="screen">
             <param name="port" type="string" value="/dev/justinaHokuyo" />
             <param name="frame_id" type="string" value="laser_link" />
