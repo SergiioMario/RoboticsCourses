@@ -1,6 +1,8 @@
 \documentclass[letterpaper,12pt]{article}
 \usepackage[spanish]{babel}
 \spanishdecimal{.}
+\selectlanguage{spanish}
+\usepackage[spanish,onelanguage,ruled]{algorithm2e}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
 \usepackage{caption}
@@ -23,11 +25,38 @@
 \end{itemize}
 
 \section{Introducción}
+\subsection{El algoritmo A*}
+La planeación de rutas consiste en la obtención de un movimiento continuo que conecte una configuración inicial, con una final mientras se evaden obstáculos al mismo tiempo. Se parte del supuesto de que se dispone de una representación del ambiente en la cual hay información sobre el espacio navegable y el espacio ocupado por los obstáculos. En esta práctica se asume que el robot sólo se mueve sobre un plano y que se tiene una representación del ambiente que consiste en un mapa de celdas de ocupación (obtenido en la práctica 4). 
 
+Una forma de encontrar una ruta es aplicando un algoritmo de búsqueda en grafos. En el caso de las celdas de ocupación, cada celda representa un nodo en el grafo y se considera que cada celda (nodo) está conectada únicamente con sus celdas vecinas. Para determinar los nodos vecinos se puede utilizar conectividad cuatro u ocho. En esta práctica se utilizará la conectivad cuatro. 
+
+A* es un algoritmo de búsqueda que explora la ruta con el menor costo esperado. Para un nodo $n$, el costo esperado $f(n)$ se calcula como 
+\[f(n) = g(n) + h(n)\]
+donde $g(n)$ es el costo de la ruta desde el nodo origen hasta el nodo $n$ y $h(n)$ es una heurística que determina el costo desde el mismo nodo $n$ hasta el nodo objetivo. Se debe cumplir que $h(n) \leq g(n)\quad \forall\; n \in\; Graph$. El algoritmo \ref{alg:AStar} muestra los pasos de este algoritmo en un pseudocódigo pensado para implementarse en lenguajes como C++ o Python.
+\begin{algorithm}
+\DontPrintSemicolon
+\KwData{Mapa de celdas de ocupación, posición inicial, posición final}
+\KwResult{Ruta óptima del nodo inicial al final expresada como una secuencia de posiciones $[x\,y]$}
+\emph{Estos arreglos se inicializan con un tamaño igual al número de celdas del mapa}
+g\_values = Arreglo que almacena los valores $g$ para cada nodo\;
+f\_values = Arreglo que almacena los valores $f$ para cada nodo\;
+is\_known = Arreglo que almacena si un nodo es conocido o no\;
+previous = Arrelgo que almacena el nodo previo para cada nodo\;
+\BlankLine
+map\_size = Número de celdas en el mapa
+current\_cell = índice de la celda actual
+\BlankLine
+\ForAll{ $i \in [0, map\_size)$}
+{
+  g\_values[i] $\leftarrow \inf$ 
+}
+\caption{Algoritmo A*}
+\label{alg:AStar}
+\end{algorithm}
 \section{Desarrollo}
 \textbf{Nota:} Para esta práctica se asume que el alumno ejecutó correctamente la práctica 4.
 
-\subsection{Algoritmo de A*}
+
 %Poner aquí el pseudogódigo
 \subsection{Suavizado}
 %Poner pseudocódigo de suavizado
