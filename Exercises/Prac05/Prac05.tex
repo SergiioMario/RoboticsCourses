@@ -10,6 +10,7 @@
 \usepackage[top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm]{geometry}
 \usepackage{hyperref}
 \usepackage{verbatim}
+\usepackage{amssymb}
 
 \title{Práctica 5  \\ Cálculo de rutas utilizando A* y celdas de ocupación}
 \author{M.I. Marco Negrete}
@@ -34,58 +35,57 @@ A* es un algoritmo de búsqueda que explora la ruta con el menor costo esperado.
 \[f(n) = g(n) + h(n)\]
 donde $g(n)$ es el costo de la ruta desde el nodo origen hasta el nodo $n$ y $h(n)$ es una heurística que determina \textit{un} costo que se esperaría tener desde el mismo nodo $n$ hasta el nodo objetivo. Este costo esperado de hecho subestima el valor real, es decir, se debe cumplir que $h(n) \leq g(n)\quad \forall\; n \in\; Grafo$. 
 
-En la búsqueda por A* se manejan dos conjuntos principales, uno llamado \textit{lista abierta} y el otro, \texit{lista cerrada}. La lista abierta contiene todos los nodos que han sido visitados pero no expandidos y la cerrada, aquellos que han sido visitados \textit{y} expandidos. El algoritmo \ref{alg:AStar} muestra los pasos en pseudocódigo para implementar A*. 
+En la búsqueda por A* se manejan dos conjuntos principales, uno llamado \textit{lista abierta} y el otro, \textit{lista cerrada}. La lista abierta contiene todos los nodos que han sido visitados pero no expandidos y la cerrada, aquellos que han sido visitados \textit{y} expandidos (también llamados nodos conocidos). El algoritmo \ref{alg:AStar} muestra los pasos en pseudocódigo para implementar A*. 
 \begin{algorithm}
 \DontPrintSemicolon
-\KwData{Grafo, nodo inicial, nodo final}
+\KwData{Grafo, nodo inicial, nodo meta}
 \KwResult{Ruta óptima expresada como una secuencia de nodos}
-Close $\leftarrow \emptyset$
-Open $\leftarrow$ start_node
-\ForAll{ $i \in [0, map\_size)$}
+Cerrado $\leftarrow \emptyset$\;
+Abierto $\leftarrow$ \{nodo\_inicial\}\;
+previo(nodo\_inicial) $\leftarrow \varnothing$\;
+\While{ Abierto $\neq\emptyset$ }
 {
-  g\_values[i] $\leftarrow \infty$ \textit{//Arreglo que almacena los valores $g$ para cada nodo}\;
-  f\_values[i] $\leftarrow \infty$ \textit{//Arreglo que almacena los valores $f$ para cada nodo}\;
-  is\_known[i] $\leftarrow$ false \textit{//Arreglo que almacena si un nodo es conocido o no}\;
-  previous[i] $\leftarrow -1$  \textit{//Arreglo que almacena los nodos previos para cada nodo}
-  is\_in\_open[i] $\leftarrow$ false \textit{//Arreglo que indica si un nodo está en la frontera}\;
-}
-current\_cell $\leftarrow$ índice correspondiente a las coordenadas de la posición inicial\;
-goal\_cell $\leftarrow$ índice correspondiente a las coordenadas de la posición final\;
-is\_known[current\_cell] $\leftarrow$ true $\qquad\qquad$g\_values[current\_cell] $\leftarrow 0$\;
-open $\leftarrow$ [] \textit{//Conjunto de nodos a explorar. Al inicio es vacío}\; 
-attempts $\leftarrow$ 0\;
-\While{current\_cell $\neq$  goal\_cell y attempts $<$ map\_size}
-{
-  \ForAll{ $x\in{vecinos\_de\_celda\_actual}$}
+  nodo\_actual $\leftarrow$ nodo con el menor valor $f$ del conjunto $Abierto$\;
+  Abierto $\leftarrow$ Abierto - \{nodo\_actual\}\;
+  Cerrado $\leftarrow$ Cerrado $\cup$ \{nodo\_actual\}\;
+  \If{nodo\_actual es nodo\_meta}
   {
-    \If{is\_known[x] o es\_espacio\_ocupado(x)}{continuar con el siguiente nodo}
-    g\_temp $\leftarrow$ g\_values[current\_cell] + 1\;
-    heuristics $\leftarrow$ dist\_manhattan(x, goal\_cell)\; 
-    \If{g\_temp $<$ g\_values[x]}
-    {
-      g\_values[x] $\leftarrow$ g\_temp\;
-      f\_values[x] $\leftarrow$ g\_temp + heuristics\;
-      previous[x] $\leftarrow$ current\_cell\;
-    }
-    \If{ is\_in\_open[x] = false}
-    {
-      open $\leftarrow$ open $\cup\; \{x\}$
-    }
-    is\_in\_open[x] $\leftarrow$ true
+    Anunciar éxito y salir de este ciclo\;
   }
-  \If{open = $\emptyset$}{Anunciar falla: no se puede calcular una ruta}
-  current\_cell $\leftarrow$ celda con el menor valor $f$ de todas las contenidas en $open$\;
-  is\_known[current\_cell] $\leftarrow$ true\;
-  open $\leftarrow$ open - $\{current\_cell\}$\;
-  attempts $\leftarrow$ attempts + 1\;
+  \ForEach{nodo\_vecino de nodo\_actual}
+  {
+    \If{nodo\_vecino $\in$ Cerrado}{Continuar con el siguiente nodo\_vecino}
+    \eIf{nodo\_vecino $\in$ Abierto}
+    {
+      costo\_temporal $\leftarrow g(\textrm{nodo\_actual}) + d(\textrm{nodo\_actual, nodo\_vecino})$\;
+      \If{costo\_temporal $<$ g(nodo\_vecino)}
+      {
+        $g(\textrm{nodo\_vecino})\leftarrow$ costo\_temporal\;
+        $f(\textrm{nodo\_vecino})\leftarrow$ costo\_temporal + heurística(nodo\_vecino, nodo\_meta)\;
+        previo(nodo\_vecino) $\leftarrow$ nodo\_actual\;
+      }
+    }
+    {
+      $g(\textrm{nodo\_vecino})\leftarrow g(\textrm{nodo\_actual}) + d(\textrm{nodo\_actual, nodo\_vecino})$\;
+      $f(\textrm{nodo\_vecino})\leftarrow g\textrm{nodo\_vecino})$  + heurística(nodo\_vecino, nodo\_meta)\;
+      previo(nodo\_vecino) $\leftarrow$ nodo\_actual\;
+      Abierto $\leftarrow$ Abierto $\cup$ \{nodo\_vecino\}\; 
+    }
+  }
 }
-current\_cell $\leftarrow$ goal\_cell\;
-path $\leftarrow\emptyset$ \textit{//conjunto de posiciones de la ruta resultante}\;
-\While{current\_cell $\neq -1$}
+\eIf{nodo\_actual $\neq$ nodo\_meta}
 {
-  $(x,y)\leftarrow$ coordenadas correspondientes a current\_cell\;
-  path $\leftarrow$ path $\cup  \{(x,y)\}$\;
-  current\_cell $\leftarrow$ previous[current\_cell]\;
+  Anunciar falla\;
+}
+{
+  RutaOptima $\leftarrow\emptyset$ \;
+  \While{nodo\_actual $\neq\varnothing$ }
+  {
+    \textit{//El nodo actual se inserta al principio de la ruta}\;
+    RutaÓptima $\leftarrow$ \{nodo\_actual\} $\cup$ RutaÓptima \;
+    nodo\_actual $\leftarrow$ previo(nodo\_actual)\;
+  }
+  Regresar RutaÓptima
 }
 \caption{Búsqueda con A*}
 \label{alg:AStar}
