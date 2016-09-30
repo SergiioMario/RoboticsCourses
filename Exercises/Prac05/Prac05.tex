@@ -90,6 +90,14 @@ previo(nodo\_inicial) $\leftarrow \varnothing$\;
 \caption{Búsqueda con A*}
 \label{alg:AStar}
 \end{algorithm}
+
+\subsection{Suavizado de la ruta}
+Dado que se está utilizando conectividad cuatro en el algoritmo de A*, la ruta calculada tendrá siempre vueltas con ángulos de 90°, lo cual no es deseable por varias razones: la primera de ellas es que la función de posición no es diferenciable en las esquinas, además, este tipo de vueltas ocasionan cambios bruscos en las señales de control, lo que finalmente ocasiona daños a los motores de la base móvil. Por otro lado, las restricciones de movimiento en algunos tipos de bases (como es el caso de los automóviles) pueden impedir ejecutar vueltas en ángulo recto.
+
+Por lo anterior, es conveniente suavizar la ruta calculada por A* de modo que la nueva ruta sea lo suficientemente parecida a la original pero al mismo tiempo, lo suficientemente suave para evitar curvas muy pronunciadas. La figura ASDFASFASFD muestra un ejemplo de suavizado con dos casos extremos: la ruta azul es una ruta igual a la original, la verde es una ruta sin vueltas pero que ha dejado de ser una ruta útil, y la roja, que es un \textit{promedio ponderado} de las dos anteriores. 
+
+Para poder obtener una ruta como la roja de la figura ASDFASDFA, plantearemos una función de costo que tome en cuenta el parecido con la ruta original y el \textit{nivel de suavizado} que se desee. Entre más suavizado, menor será el parecido con la ruta original y viceversa. La idea es encontrar el punto que 
+
 \section{Desarrollo}
 \textbf{Nota:} Para esta práctica se asume que el alumno ejecutó correctamente la práctica 4.
 
