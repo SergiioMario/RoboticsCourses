@@ -32,25 +32,62 @@ Una forma de encontrar una ruta es aplicando un algoritmo de búsqueda en grafos
 
 A* es un algoritmo de búsqueda que explora la ruta con el menor costo esperado. Para un nodo $n$, el costo esperado $f(n)$ se calcula como 
 \[f(n) = g(n) + h(n)\]
-donde $g(n)$ es el costo de la ruta desde el nodo origen hasta el nodo $n$ y $h(n)$ es una heurística que determina el costo desde el mismo nodo $n$ hasta el nodo objetivo. Se debe cumplir que $h(n) \leq g(n)\quad \forall\; n \in\; Graph$. El algoritmo \ref{alg:AStar} muestra los pasos de este algoritmo en un pseudocódigo pensado para implementarse en lenguajes como C++ o Python.
+donde $g(n)$ es el costo de la ruta desde el nodo origen hasta el nodo $n$ y $h(n)$ es una heurística que determina \textit{un} costo que se esperaría tener desde el mismo nodo $n$ hasta el nodo objetivo. Este costo esperado de hecho subestima el valor real, es decir, se debe cumplir que $h(n) \leq g(n)\quad \forall\; n \in\; Grafo$. 
+
+En la búsqueda por A* se manejan dos conjuntos principales, uno llamado \textit{lista abierta} y el otro, \texit{lista cerrada}. La lista abierta contiene todos los nodos que han sido visitados pero no expandidos y la cerrada, aquellos que han sido visitados \textit{y} expandidos. El algoritmo \ref{alg:AStar} muestra los pasos en pseudocódigo para implementar A*. 
 \begin{algorithm}
 \DontPrintSemicolon
-\KwData{Mapa de celdas de ocupación, posición inicial, posición final}
-\KwResult{Ruta óptima del nodo inicial al final expresada como una secuencia de posiciones $[x\,y]$}
-\emph{Estos arreglos se inicializan con un tamaño igual al número de celdas del mapa}
-g\_values = Arreglo que almacena los valores $g$ para cada nodo\;
-f\_values = Arreglo que almacena los valores $f$ para cada nodo\;
-is\_known = Arreglo que almacena si un nodo es conocido o no\;
-previous = Arrelgo que almacena el nodo previo para cada nodo\;
-\BlankLine
-map\_size = Número de celdas en el mapa
-current\_cell = índice de la celda actual
-\BlankLine
+\KwData{Grafo, nodo inicial, nodo final}
+\KwResult{Ruta óptima expresada como una secuencia de nodos}
+Close $\leftarrow \emptyset$
+Open $\leftarrow$ start_node
 \ForAll{ $i \in [0, map\_size)$}
 {
-  g\_values[i] $\leftarrow \inf$ 
+  g\_values[i] $\leftarrow \infty$ \textit{//Arreglo que almacena los valores $g$ para cada nodo}\;
+  f\_values[i] $\leftarrow \infty$ \textit{//Arreglo que almacena los valores $f$ para cada nodo}\;
+  is\_known[i] $\leftarrow$ false \textit{//Arreglo que almacena si un nodo es conocido o no}\;
+  previous[i] $\leftarrow -1$  \textit{//Arreglo que almacena los nodos previos para cada nodo}
+  is\_in\_open[i] $\leftarrow$ false \textit{//Arreglo que indica si un nodo está en la frontera}\;
 }
-\caption{Algoritmo A*}
+current\_cell $\leftarrow$ índice correspondiente a las coordenadas de la posición inicial\;
+goal\_cell $\leftarrow$ índice correspondiente a las coordenadas de la posición final\;
+is\_known[current\_cell] $\leftarrow$ true $\qquad\qquad$g\_values[current\_cell] $\leftarrow 0$\;
+open $\leftarrow$ [] \textit{//Conjunto de nodos a explorar. Al inicio es vacío}\; 
+attempts $\leftarrow$ 0\;
+\While{current\_cell $\neq$  goal\_cell y attempts $<$ map\_size}
+{
+  \ForAll{ $x\in{vecinos\_de\_celda\_actual}$}
+  {
+    \If{is\_known[x] o es\_espacio\_ocupado(x)}{continuar con el siguiente nodo}
+    g\_temp $\leftarrow$ g\_values[current\_cell] + 1\;
+    heuristics $\leftarrow$ dist\_manhattan(x, goal\_cell)\; 
+    \If{g\_temp $<$ g\_values[x]}
+    {
+      g\_values[x] $\leftarrow$ g\_temp\;
+      f\_values[x] $\leftarrow$ g\_temp + heuristics\;
+      previous[x] $\leftarrow$ current\_cell\;
+    }
+    \If{ is\_in\_open[x] = false}
+    {
+      open $\leftarrow$ open $\cup\; \{x\}$
+    }
+    is\_in\_open[x] $\leftarrow$ true
+  }
+  \If{open = $\emptyset$}{Anunciar falla: no se puede calcular una ruta}
+  current\_cell $\leftarrow$ celda con el menor valor $f$ de todas las contenidas en $open$\;
+  is\_known[current\_cell] $\leftarrow$ true\;
+  open $\leftarrow$ open - $\{current\_cell\}$\;
+  attempts $\leftarrow$ attempts + 1\;
+}
+current\_cell $\leftarrow$ goal\_cell\;
+path $\leftarrow\emptyset$ \textit{//conjunto de posiciones de la ruta resultante}\;
+\While{current\_cell $\neq -1$}
+{
+  $(x,y)\leftarrow$ coordenadas correspondientes a current\_cell\;
+  path $\leftarrow$ path $\cup  \{(x,y)\}$\;
+  current\_cell $\leftarrow$ previous[current\_cell]\;
+}
+\caption{Búsqueda con A*}
 \label{alg:AStar}
 \end{algorithm}
 \section{Desarrollo}
