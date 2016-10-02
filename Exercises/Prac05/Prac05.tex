@@ -7,10 +7,12 @@
 \usepackage{graphicx}
 \usepackage{caption}
 \usepackage{subcaption}
-\usepackage[top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm]{geometry}
+\usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry}
 \usepackage{hyperref}
 \usepackage{verbatim}
 \usepackage{amssymb}
+\usepackage{mathtools}
+\newcommand\ddfrac[2]{\frac{\displaystyle #1}{\displaystyle #2}}
 
 \title{Práctica 5  \\ Cálculo de rutas utilizando A* y celdas de ocupación}
 \author{M.I. Marco Negrete}
@@ -25,17 +27,17 @@
 \item Publicar la ruta en un tópico y desplegarla en el visualizador \texttt{rviz}.
 \end{itemize}
 
-\section{Introducción}
+\section{Marco Teórico}
 \subsection{El algoritmo A*}
-La planeación de rutas consiste en la obtención de un movimiento continuo que conecte una configuración inicial, con una final mientras se evaden obstáculos al mismo tiempo. Se parte del supuesto de que se dispone de una representación del ambiente en la cual hay información sobre el espacio navegable y el espacio ocupado por los obstáculos. En esta práctica se asume que el robot sólo se mueve sobre un plano y que se tiene una representación del ambiente que consiste en un mapa de celdas de ocupación (obtenido en la práctica 4). 
+La planeación de rutas consiste en la obtención de un movimiento continuo libre de colisiones que conecte una configuración inicial, con una final. Se asume que se dispone de una representación del ambiente con información sobre el espacio navegable y el ocupado por los obstáculos. En esta práctica se considera que el robot sólo se mueve sobre un plano y que se tiene una representación que consiste en un mapa de celdas de ocupación (obtenido en la práctica 4). 
 
-Una forma de encontrar una ruta es aplicando un algoritmo de búsqueda en grafos. En el caso de las celdas de ocupación, cada celda representa un nodo en el grafo y se considera que cada celda (nodo) está conectada únicamente con sus celdas vecinas. Para determinar los nodos vecinos se puede utilizar conectividad cuatro u ocho. En esta práctica se utilizará la conectivad cuatro. 
+Una posible solución es aplicar un algoritmo de búsqueda en grafos. En el caso de las celdas de ocupación, cada celda representa un nodo en el grafo y se considera que está conectada únicamente con aquellas celdas vecinas que pertenezcan al espacio libre. Para determinar los nodos vecinos se puede utilizar conectividad cuatro u ocho. En esta práctica se utilizará la conectivad cuatro. 
 
 A* es un algoritmo de búsqueda que explora la ruta con el menor costo esperado. Para un nodo $n$, el costo esperado $f(n)$ se calcula como 
 \[f(n) = g(n) + h(n)\]
 donde $g(n)$ es el costo de la ruta desde el nodo origen hasta el nodo $n$ y $h(n)$ es una heurística que determina \textit{un} costo que se esperaría tener desde el mismo nodo $n$ hasta el nodo objetivo. Este costo esperado de hecho subestima el valor real, es decir, se debe cumplir que $h(n) \leq g(n)\quad \forall\; n \in\; Grafo$. 
 
-En la búsqueda por A* se manejan dos conjuntos principales, uno llamado \textit{lista abierta} y el otro, \textit{lista cerrada}. La lista abierta contiene todos los nodos que han sido visitados pero no expandidos y la cerrada, aquellos que han sido visitados \textit{y} expandidos (también llamados nodos conocidos). El algoritmo \ref{alg:AStar} muestra los pasos en pseudocódigo para implementar A*. 
+En la búsqueda por A* se manejan dos conjuntos principales: la \textit{lista abierta} y la \textit{lista cerrada}. La lista abierta contiene todos los nodos que han sido visitados pero no expandidos y la cerrada, aquellos que han sido visitados \textit{y} expandidos (también llamados nodos conocidos). El algoritmo \ref{alg:AStar} muestra los pasos en pseudocódigo para implementar A*. 
 \begin{algorithm}
 \DontPrintSemicolon
 \KwData{Grafo, nodo inicial, nodo meta}
@@ -91,25 +93,124 @@ previo(nodo\_inicial) $\leftarrow \varnothing$\;
 \label{alg:AStar}
 \end{algorithm}
 
-\subsection{Suavizado de la ruta}
-Dado que se está utilizando conectividad cuatro en el algoritmo de A*, la ruta calculada tendrá siempre vueltas con ángulos de 90°, lo cual no es deseable por varias razones: la primera de ellas es que la función de posición no es diferenciable en las esquinas, además, este tipo de vueltas ocasionan cambios bruscos en las señales de control, lo que finalmente ocasiona daños a los motores de la base móvil. Por otro lado, las restricciones de movimiento en algunos tipos de bases (como es el caso de los automóviles) pueden impedir ejecutar vueltas en ángulo recto.
+\subsection{Crecimiento de obstáculos}
+Como se mencionó anteriormente, se asume que se tiene un mapa con información sobre el espacio libre y ocupado, sin embargo, en una implementación en un robot real, las celdas que están junto al espacio ocupado no se pueden considerar como libres ya que si el robot se mueve hacia ellas seguramente chocará con algo. Una forma de solucionar esto sería hacer las celdas tan grandes de modo que puedan contener al robot, sin embargo, esta resolución sería muy baja y la representación del ambiente sería muy mala. Otra posible solución es \textit{crecer} los obstáculos de modo que las celdas que están muy cerca del espacio ocupado se consideren también como ocupadas.
 
-Por lo anterior, es conveniente suavizar la ruta calculada por A* de modo que la nueva ruta sea lo suficientemente parecida a la original pero al mismo tiempo, lo suficientemente suave para evitar curvas muy pronunciadas. La figura ASDFASFASFD muestra un ejemplo de suavizado con dos casos extremos: la ruta azul es una ruta igual a la original, la verde es una ruta sin vueltas pero que ha dejado de ser una ruta útil, y la roja, que es un \textit{promedio ponderado} de las dos anteriores. 
+\begin{figure}
+\centering
+\includegraphics[width=0.8\textwidth]{Figures/Grow.eps}
+\caption{Crecimiento de obstáculos}
+\label{fig:Grow}
+\end{figure}
 
-Para poder obtener una ruta como la roja de la figura ASDFASDFA, plantearemos una función de costo que tome en cuenta el parecido con la ruta original y el \textit{nivel de suavizado} que se desee. Entre más suavizado, menor será el parecido con la ruta original y viceversa. La idea es encontrar el punto que 
+La figura \ref{fig:Grow} muestra un ejemplo en el que los obstáculos se han aumentado dos celdas. Este procedimiento se conoce como \textit{dilatación} y es un tipo de \textit{operador morfológico}. La explicación de estos conceptos está fuera del alcance de esta práctica.
 
-\section{Desarrollo}
+Los obstáculos deben aumentarse cuando menos el radio del robot. Para el mapa obtenido en la práctica 4, dado que la resolución es de 5[cm] y los robots utilizados tienen casi 0.5[m] de diámetro, los obstáculos deben aumentarse cuando menos 5 celdas. El algoritmo \ref{alg:Grow} enumera los pasos para crecer obstáculos en un mapa.
+
+\begin{algorithm}
+\DontPrintSemicolon
+\KwData{Mapa de celdas de ocupación $M = \{c_0 ... c_n\}$, número de celdas a aumentar $k$.}
+\KwResult{Mapa con los obstáculos aumentados.}
+Repetir $k$ veces los siguientes pasos:\;
+\ForAll{$c \in M$}
+{
+  \If{$c$ está en el espacio ocupado}
+  {
+    $V(c) \leftarrow $ Conjunto de celdas vecinas de $c$ (conectividad ocho)\;
+    \ForAll{$v \in V(c)$}
+    {
+      Marcar $v$ como parte del espacio ocupado\;
+    }
+  }
+}
+Regresar $M$
+\caption{Crecimiento de obstáculos.}
+\label{alg:Grow}
+\end{algorithm}
+
+
+\subsection{Suavizado de la ruta: función de costo}
+Dado que se está utilizando conectividad cuatro en el algoritmo de A*, la ruta calculada tendrá siempre vueltas con ángulos rectos, lo cual no es deseable por varias razones: la primera de ellas es que la función de posición no es diferenciable en las esquinas, además, este tipo de vueltas ocasionan cambios bruscos en las señales de control, lo que finalmente ocasiona daños a los motores de la base móvil. Por otro lado, las restricciones de movimiento en algunos tipos de bases (como es el caso de los automóviles) pueden impedir ejecutar vueltas en ángulo recto.
+
+Por lo anterior, es conveniente suavizar la ruta calculada por A* de modo que la nueva ruta sea lo suficientemente parecida a la original pero al mismo tiempo, lo suficientemente suave para evitar curvas muy pronunciadas. La figura \ref{fig:Smooth} muestra un ejemplo de suavizado con dos casos extremos: la ruta roja es una ruta igual a la original, la azul es una ruta sin vueltas pero que ha dejado de ser una ruta útil, y la verde, que es un \textit{promedio ponderado} de las dos anteriores. 
+
+Para poder obtener una ruta como la verde de la figura \ref{fig:Smooth}, plantearemos una función de costo que tome en cuenta el parecido con la ruta original y el \textit{nivel de suavizado} que se desee. Estos dos criterios están en conflicto: entre más suavizado, menor será el parecido con la ruta original y viceversa, es decir, la función de costo será grande con mucho suavizado y también debe ser muy grande si la ruta es muy parecida a la orignal. La idea es que dicha función de costo tenga un mínimo en un punto intermedio de modo que este punto corresponda a una ruta como la verde de la figura \ref{fig:Smooth}. 
+
+Las funciones cuadráticas son una buena opción como función de costo ya que tienen un mínimo global y además son diferenciables. Para el suavizado de la ruta se propone la función de costo
+\begin{equation}
+V = \frac{1}{2}\alpha\sum_{i=1}^{n}\left(p_i - q_i\right)^2 + \frac{1}{2}\beta\sum_{i=1}^{n-1}\left(p_i - p_{i+1}\right)^2
+\label{eq:Cost}
+\end{equation}
+donde $Q = \{q_1\dots q_n\}$ son todos los puntos $q = [x\,y]$ que forman la ruta original calculada con A* y $P=\{p_1\dots p_n\}$ son los puntos de la ruta ya suavizada. La constante $\alpha \geq 0$ es un parámetro de diseño para indicar cuánto peso se le quiere dar al parecido de la ruta original con la suavizada y $\beta \geq 0$ indica el peso que se le da al suavizado en sí. Con $\alpha = 0$ se obtendría una línea recta, como la ruta azul de la figura \ref{fig:Smooth}, y con $\beta = 0$ se obtendría una ruta igual a la original.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.5\textwidth]{Figures/Smooth.eps}
+\caption{Ejemplos de suavizado}
+\label{fig:Smooth}
+\end{figure}
+
+\subsection{Suavizado de la ruta: descenso del gradiente}
+La ruta suavizada se obtiene encontrando el argumento que minimiza la función \ref{eq:Cost}, sin embargo, dada la cantidad tan grande de variables, es difícil encontrarlo analíticamente. Una forma más sencilla es mediante el médoto del descenso del gradiente, que consiste en mover el argumento pequeñas cantidades proporcionales al gradiente de la función $V$ y en sentido contrario a éste. Dado que el cambio entre cada iteración es proporcional a $\nabla V$, se puede asumir que cuando el cambio en el argumento es menor que una tolerancia, entonces se ha alcanzado el mínimo. 
+
+El algoritmo \ref{alg:Gradient} contiene los pasos en pseudocódigo para implementar descenso del gradiente. La constante $\delta > 0$ debe ser lo suficientemente pequeña para evitar inestabilidad en el algoritmo, sin embargo, se debe considerar que entre más pequeña sea ésta, mayor será el costo computacional. 
+
+\begin{algorithm}
+\DontPrintSemicolon
+\KwData{Función $V$ cuyo mínimo se desea encontrar, condición inicial $p(0)$, tolerancia $tol$.}
+\KwResult{Argumento $p$ que minimiza $V$.}
+$i = 0$\;
+$p_i \leftarrow p(0)$\;
+\While{ $\Vert\nabla V(p_i)\Vert > tol$}
+{
+\BlankLine
+  $p_{i+1} \leftarrow p_i - \delta\nabla V(p_i)$\;
+  $i \leftarrow i+1$
+\BlankLine
+}
+Regresar $p_i$
+\caption{Descenso del gradiente.}
+\label{alg:Gradient}
+\end{algorithm}
+
+La ecuación \ref{eq:Cost} toma como argumentos las posiciones tanto de la ruta original como de la suavizada, sin embargo, dado que sólo varían los puntos de la nueva ruta, se puede considerar que el gradiente $\nabla V$ está dado por:
+\begin{equation}
+\underbrace{\left[\frac{}{}\alpha(p_1 - q_1)+\beta(p_1 - p_2)\right.}_{\ddfrac{\partial V}{\partial p_1}}
+,\dots ,
+\underbrace{\frac{}{}\alpha(p_i - q_i) + \beta(2p_i - p_{i-1} - p_{i+1})}_{\ddfrac{\partial V}{\partial p_i}}
+,\dots ,
+\underbrace{\left.\alpha(p_n-q_n)+\beta(p_n - p_{n-1})\frac{}{}\right]}_{\ddfrac{\partial V}{\partial p_n}}
+\end{equation}
+Nótese que se está derivando con respecto a $p$ (puntos de la ruta suavizada), no con respecto a $q$ (puntos de la ruta original). Recuerde que cada punto de la ruta tiene coordenadas $[x\,y]$, por lo que el descenso de gradiente se tiene que aplicar a ambas coordenadas. 
+
+\section{Tareas}
 \textbf{Nota:} Para esta práctica se asume que el alumno ejecutó correctamente la práctica 4.
 
+\subsection{Nodo que calcula y publica la ruta}
+%Hacer un nodo que atienda un servicio llamado /navigation/a_star
+%Responde si pudo o no calcular la trayectoria
+%En el callback se debe hacer: crecer los obstáculos, calcular A_star, suavizar, en ese orden
+%Una vez calculada la trayectoria, se debe publicar en un tópico de tipo path en /navigation/a_star_path
+%Ajustar alpha y beta hasta obtener un suavizado satisfactorio
 
-%Poner aquí el pseudogódigo
-\subsection{Suavizado}
-%Poner pseudocódigo de suavizado
-\subsection{Visualización}
-%Instrucciones para agregarla al rviz y ejemplo con imagen de lo que se espera obtener.
+\subsection{Interfaz gráfica}
+%Explicar la interfaz gráfica
+%Poner un nuevo launch file que levante la interfaz gráfica
+%Imagen de la interfaz gráfica.
+
+%Ejemplo del resultado esperado con figura
+
+
 \section{Evaluación}
 \begin{itemize}
-\item La práctica se considera entregada si el mapa representa al ambiente de manera satisfactoria. 
+\item %El cálculo no debe tomar más de unos cuántos segundos. 
+\item %Revisar que inicio y meta NO estén en el espacio ocupado.
+\item %Se probabará con tres pares de posiciones iniciales y finales aleatorias
+\item %Los parámetros de suavizado se deben poder fijar fácilmente
+\item %El número de celdas a crecer se debe modificar fácilmente
+\item %No es necesario poder cambiar los params anteriores en tiempo de ejecución. 
+\item %Las posiciones iniciales y finales sí se deben poder cambiar en runtime y se fijarán haciendo uso de la gui
+\item %Cada cosa debe estar en métodos diferentes
 \end{itemize}
 
 \end{document}
