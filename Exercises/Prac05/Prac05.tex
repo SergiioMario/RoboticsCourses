@@ -184,9 +184,23 @@ La ecuación \ref{eq:Cost} toma como argumentos las posiciones tanto de la ruta 
 Nótese que se está derivando con respecto a $p$ (puntos de la ruta suavizada), no con respecto a $q$ (puntos de la ruta original). Recuerde que cada punto de la ruta tiene coordenadas $[x\,y]$, por lo que el descenso de gradiente se tiene que aplicar a ambas coordenadas. 
 
 \section{Tareas}
-\textbf{Nota:} Para esta práctica se asume que el alumno ejecutó correctamente la práctica 4.
 
 \subsection{Nodo que calcula y publica la ruta}
+Crear un paquete de ROS con el nombre \texttt{path_calculator}que tenga las siguientes características:
+\begin{itemize}
+\item Atender un servicio con el nombre \texttt{/navigation/a_star} que calcule una ruta a partir de un mapa y posiciones inicial y final. 
+\item La respuesta del servicio debe corresponder al éxito al calcular la trayectoria.
+\item En el \textit{callback} del servicio se deben ejecutar los algoritmos expuestos en la sección anterior: crecimiento de los obstáculos, cálculo de la ruta mediante A* y suavizado de la ruta (en ese orden).
+\end{itemize}
+Con el objetivo de facilitar las pruebas, se ha incluido un paquete llamado \texttt{navig_msgs} que contiene un servicio llamado \texttt{CalculatePath}. El archivo se encuentra en \texttt{navig_msgs/srv} y tiene el siguinte contenido:
+\begin{verbatim}
+   geometry_msgs/Pose start_pose
+   geometry_msgs/Pose goal_pose
+   nav_msgs/OccupancyGrid map
+   ---
+   nav_msgs/Path path
+\end{verbatim}
+El servicio que atiende el nodo debe ser de este tipo. Recuerde que para poder usar este nodo, el paquete \texttt{navig_msgs} debe estar incluído en las dependencias de \texttt{path_calculator}.
 %Hacer un nodo que atienda un servicio llamado /navigation/a_star
 %Responde si pudo o no calcular la trayectoria
 %En el callback se debe hacer: crecer los obstáculos, calcular A_star, suavizar, en ese orden
