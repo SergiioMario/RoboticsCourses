@@ -186,11 +186,14 @@ Nótese que se está derivando con respecto a $p$ (puntos de la ruta suavizada),
 \section{Tareas}
 
 \subsection{Nodo que calcula y publica la ruta}
-Crear un paquete de ROS con el nombre \texttt{path_calculator}que tenga las siguientes características:
+Crear un paquete de ROS con el nombre \texttt{path_calculator} que tenga las siguientes características:
 \begin{itemize}
-\item Atender un servicio con el nombre \texttt{/navigation/a_star} que calcule una ruta a partir de un mapa y posiciones inicial y final. 
+\item Atender un servicio con el nombre \texttt{/navigation/a_star} de tipo que calcule una ruta a partir de un mapa y posiciones inicial y final. 
 \item La respuesta del servicio debe corresponder al éxito al calcular la trayectoria.
 \item En el \textit{callback} del servicio se deben ejecutar los algoritmos expuestos en la sección anterior: crecimiento de los obstáculos, cálculo de la ruta mediante A* y suavizado de la ruta (en ese orden).
+\item Los obstáculos deben crecerse un número de celdas que equivalga a cuando menos 30 [cm].
+\item Es tarea del alumno calcular los parámetros $\alpha$, $\beta$ y $\delta$ para el suavizado de la ruta.
+\item El nodo debe publicar de manera periódica la última ruta calculada. El nombre del tópicod
 \end{itemize}
 Con el objetivo de facilitar las pruebas, se ha incluido un paquete llamado \texttt{navig_msgs} que contiene un servicio llamado \texttt{CalculatePath}. El archivo se encuentra en \texttt{navig_msgs/srv} y tiene el siguinte contenido:
 \begin{verbatim}
