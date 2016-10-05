@@ -6,16 +6,21 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-}
-
-MainWindow::~MainWindow()
-{
+    
     //Navigation
+    this->robotX = 0;
+    this->robotY = 0;
+    this->robotTheta = 0;
     QObject::connect(ui->navTxtStartPose, SIGNAL(returnPressed()), this, SLOT(navBtnCalcPath_pressed()));
     QObject::connect(ui->navTxtGoalPose, SIGNAL(returnPressed()), this, SLOT(navBtnCalcPath_pressed()));
     QObject::connect(ui->navBtnCalcPath, SIGNAL(clicked()), this, SLOT(navBtnCalcPath_pressed()));
     QObject::connect(ui->navBtnExecPath, SIGNAL(clicked()), this, SLOT(navBtnExecPath_pressed()));
     QObject::connect(ui->navTxtMove, SIGNAL(returnPressed()), this, SLOT(navMoveChanged()));
+    
+}
+
+MainWindow::~MainWindow()
+{
     
     delete ui;
 }
@@ -59,10 +64,10 @@ void MainWindow::navBtnCalcPath_pressed()
     if(str.compare("") == 0 || str.compare("robot") == 0) //take robot pose as start position
     {
         this->ui->navTxtStartPose->setText("Robot");
+        qtRosNode->getRobotPose(this->robotX, this->robotY, this->robotTheta);
         //JustinaNavigation::getRobotPose(this->robotX, this->robotY, this->robotTheta);
-        //startX = this->robotX;
-        //startY = this->robotY;
-        //startTheta = this->robotTheta;
+        startX = this->robotX;
+        startY = this->robotY;
     }
     else if(parts.size() >= 2) //Given data correspond to numbers
     {
@@ -93,16 +98,23 @@ void MainWindow::navBtnCalcPath_pressed()
     else
         goal_location = parts[0];
 
-    /*
+    bool success = false;
     if(start_location.compare("") == 0 && goal_location.compare("") == 0)
-        JustinaNavigation::planPath(startX, startY, goalX, goalY, this->calculatedPath);
+        success = qtRosNode->calculatePath(startX, startY, goalX, goalY);
+        //JustinaNavigation::planPath(startX, startY, goalX, goalY, this->calculatedPath);
     else if(start_location.compare("") == 0 && goal_location.compare("") != 0)
-        JustinaNavigation::planPath(startX, startY, goal_location, this->calculatedPath);
+        success = qtRosNode->calculatePath(startX, startY, goal_location);
+        //JustinaNavigation::planPath(startX, startY, goal_location, this->calculatedPath);
     else if(start_location.compare("") != 0 && goal_location.compare("") == 0)
-        JustinaNavigation::planPath(start_location, goalX, goalY, this->calculatedPath);
+        success = qtRosNode->calculatePath(start_location, goalX, goalY);
+        //JustinaNavigation::planPath(start_location, goalX, goalY, this->calculatedPath);
     else
-        JustinaNavigation::planPath(start_location, goal_location, this->calculatedPath);
-    */
+        success = qtRosNode->calculatePath(start_location, goal_location);
+        //JustinaNavigation::planPath(start_location, goal_location, this->calculatedPath);
+    if(success)
+        this->ui->navLblStatus->setText("Status: path calculated succesfully");
+    else
+        this->ui->navLblStatus->setText("Status: cannot calculate path");
 }
 
 void MainWindow::navBtnExecPath_pressed()
@@ -133,21 +145,21 @@ void MainWindow::navBtnExecPath_pressed()
                 this->ui->navTxtStartPose->setText("Invalid format");
                 return;
             }
-            //this->ui->navLblStatus->setText("Base Status: Moving to goal point...");
-            //JustinaNavigation::startGetClose(goalX, goalY, goalTheta);
+            this->ui->navLblStatus->setText("Status: Moving to goal point...");
+            qtRosNode->startGetClose(goalX, goalY, goalTheta);
         }
         else
         {
-            // this->ui->navLblStatus->setText("Base Status: Moving to goal point...");
-            //JustinaNavigation::startGetClose(goalX, goalY);
+            this->ui->navLblStatus->setText("Status: Moving to goal point...");
+            qtRosNode->startGetClose(goalX, goalY);
         }
         return;
     }
     else
     {
         goal_location = parts[0];
-        //this->ui->navLblStatus->setText("Base Status: Moving to goal point...");
-        //JustinaNavigation::startGetClose(goal_location);
+        this->ui->navLblStatus->setText("Base Status: Moving to goal point...");
+        qtRosNode->startGetClose(goal_location);
     }
 }
 
@@ -168,7 +180,7 @@ void MainWindow::navMoveChanged()
         float lateral;
         if(!(ssLateral >> lateral))
             return;
-        //JustinaNavigation::startMoveLateral(lateral);
+        qtRosNode->startMoveLateral(lateral);
         return;
     }
 
@@ -183,7 +195,7 @@ void MainWindow::navMoveChanged()
         if(!(ssAngle >> angle))
             return;
     }
-    //JustinaNavigation::startMoveDistAngle(dist, angle);
+    qtRosNode->startMoveDistAngle(dist, angle);
 }
 
 

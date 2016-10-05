@@ -20,10 +20,23 @@ public:
     ~QtRosNode();
 
     ros::NodeHandle* n;
+    ros::ServiceClient cltCalculatePath;
+    ros::ServiceClient cltGetMap;
     bool gui_closed;
     
     void run();
     void setNodeHandle(ros::NodeHandle* nh);
+
+    bool calculatePath(float startX, float startY, float goalX, float goalY);
+    bool calculatePath(float startX, float startY, std::string goal_loc);
+    bool calculatePath(std::string start_loc, float goalX, float goalY);
+    bool calculatePath(std::string start_loc, std::string goal_loc);
+    void startGetClose(float goalX, float goalY, float goalTheta);
+    void startGetClose(float goalX, float goalY);
+    void startGetClose(std::string goal_location);
+    void startMoveLateral(float dist);
+    void startMoveDistAngle(float dist, float angle);
+    void getRobotPose(float& robotX, float& robotY, float& robotTheta);
 
 signals:
     void updateGraphics();

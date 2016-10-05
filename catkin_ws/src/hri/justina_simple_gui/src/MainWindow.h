@@ -22,6 +22,9 @@ public:
     ~MainWindow();
 
     QtRosNode* qtRosNode;
+    float robotX;
+    float robotY;
+    float robotTheta;
 
     void setRosNode(QtRosNode* qtRosNode);
     void closeEvent(QCloseEvent *event);
