@@ -1,41 +1,34 @@
 #include <iostream>
 #include "ros/ros.h"
 #include "std_msgs/Float32MultiArray.h"
+#include "std_msgs/Empty.h"
 #include "tf/transform_listener.h"
+#include "nav_msgs/Path.h"
 #include "Controls.h"
+
+nav_msgs::Path goalPath;
+
+void callback_path(const nav_msgs::Path::ConstPtr& msg)
+{
+    goalPath = *msg;
+}
+
+void callback_start(const std_msgs::Empty::ConstPtr& msg)
+{
+}
 
 int main(int argc, char** argv)
 {
-    float goalX;
-    float goalY;
-    for(int i=0; i < argc; i++)
-    {
-        std::string s(argv[i]);
-        if(s.compare("-x") == 0)
-        {
-            std::stringstream ss(argv[++i]);
-            if(!(ss >> goalX))
-            {
-                std::cout << "Cannot parse X :'(" << std::endl;
-                return -1;
-            }
-        }
-        if(s.compare("-y") == 0)
-        {
-            std::stringstream ss(argv[++i]);
-            if(!(ss >> goalY))
-            {
-                std::cout << "Cannot parse Y :'(" << std::endl;
-                return -1;
-            }
-        }
-    }
-    std::cout<<"INITIALIZING LOW LEVEL CONTROL NODE BY MARCOSOFT..."<< std::endl;
+    
+    std::cout<<"INIT LOW LEVEL CTRL BY MARCOSOFT..."<< std::endl;
     ros::init(argc, argv, "low_level_control");
     ros::NodeHandle n;
     ros::Publisher pubSp = n.advertise<std_msgs::Float32MultiArray>(
         "/hardware/mobile_base/speeds", 1);
-    std::cout << "Goal: " << goalX << "  " << goalY << std::endl;
+    ros::Subscriber subGoalPath = n.subscribe("/navigation/a_star",
+                                              1, callback_path);
+    ros::Subscriber subStart = n.subscribe("/navigation/start_path",
+                                           1, callback_start);
     
     ros::Rate loop(10);
     tf::TransformListener tf;
@@ -43,6 +36,8 @@ int main(int argc, char** argv)
     tf.waitForTransform("map", "base_link", ros::Time(0), ros::Duration(5.0));
     float robotX, robotY, robotTheta;
     std_msgs::Float32MultiArray msgSpeeds;
+    float goalX = 0;
+    float goalY = 0;
     while(ros::ok())
     {
         tf.lookupTransform("map", "base_link", ros::Time(0), t);
@@ -54,7 +49,7 @@ int main(int argc, char** argv)
         msgSpeeds.data = Controls::CalculateSpeeds(robotX, robotY, robotTheta,
                                                    goalX,  goalY, 1);
         pubSp.publish(msgSpeeds);
-        std::cout<< "RobotPos: "<<robotX<<"  "<<robotY << "  " << robotTheta << std::endl;
+        
         ros::spinOnce();
         loop.sleep();
     }
