@@ -64,16 +64,18 @@ v_{r} &=&  k_{\theta}e_{\theta} + k_d r e^{-\psi e_{\theta}^2}\label{eq:Control1
 \end{eqnarray}
 Nótese que los primeros términos tienen igual magnitud pero signo opuesto, lo que provoca una velocidad angular que es proporcional al error de ángulo. Los segundos términos, al tener el mismo signo y misma magnitud, provocan una velocidad lineal que es proporcional al error de distancia, es decir, el robot se irá deteniendo conforme se acerque al punto meta. La exponencial sirve para hacer pequeña la velocidad lineal cuando el error de ángulo es grande, es decir, este término logra que el robot comience a avanzar hasta que esté apuntando en la dirección correcta.
 
-En esta ley de control se tienen tres parámetros de diseño: $k_{\theta}$ 
+En esta ley de control se tienen tres parámetros de diseño: $k_{\theta}>0$, $k_d>0$ y $\psi>0$. Las dos primeras determinan la rapidez con que el robot girará y avanzará hacia el punto meta. La tercera es muy importante. Un valor de $\psi$ muy grande hará que la velocidad lineal decrezca muy rápido cuando crece el error de ángulo, es decir, el robot comenzará a avanzar hasta que esté apuntando casi sin error hacia la meta. Por el contrario, una $\psi$ muy pequeña hará que el robot describa curvas muy grandes.  
 
 La segunda ley de control sólo toma en cuenta el error de ángulo:
 \begin{eqnarray} 
-v_{l} &=& v_{max}e^{-\frac{e_{a}^{2}}{\alpha}} + 
-\frac{D}{2}\omega_{max}\left(\frac{2}{1+e^{-\frac{e_a}{\beta}}}-1\right)\label{eq:Control21}\\
-v_{r} &=& v_{max}e^{-\frac{e_{a}^{2}}{\alpha}} -
-\frac{D}{2}\omega_{max}\left(\frac{2}{1+e^{-\frac{e_a}{\beta}}}-1\right)\label{eq:Control22}
+v_{l} &=& v_{max}e^{-\frac{e_{\theta}^{2}}{\alpha}} + 
+\frac{D}{2}\omega_{max}\left(\frac{2}{1+e^{-\frac{e_{\theta}}{\beta}}}-1\right)\label{eq:Control21}\\
+v_{r} &=& v_{max}e^{-\frac{e_{\theta}^{2}}{\alpha}} -
+\frac{D}{2}\omega_{max}\left(\frac{2}{1+e^{-\frac{e_{\theta}}{\beta}}}-1\right)\label{eq:Control22}
 \end{eqnarray}
+En estas ecuaciones se tienen cuatro parámetros de diseño: $\v_{max}$ y $\omega_{max}$ son las velocidades lineales y angulares máximas respectivamente que el robot alcanzará durante su movimiento. La constante $\alpha$ tiene una función parecida a la $\psi$ en las ecuaciones (\ref{eq:Control11})-(\ref{eq:Control12}), solo que en este caso, al estar dividiendo, una $alpha$ más pequeña provocará un descenso más pronunciado en la magnitud de la velocidad lineal. El valor de $\beta$ determina qué tanto decrece la velocidad angular conforme decrece el error de ángulo. 
 
+Esta ley de control tiene la des
 
 \subsection{Perfil de velocidad}
 
