@@ -1,6 +1,6 @@
 <launch>
-    <remap from="/hardware/mobile_base/odometry" to="/navigation/localization/base_pose_ground_truth"/>
-    <remap from="/navigation/localization/amcl_pose" to="/navigation/localization/current_pose"/>
+    <remap from="/hardware/mobile_base/odometry" to="/navigation/base_pose_ground_truth"/>
+    <remap from="/navigation/amcl_pose" to="/navigation/current_pose"/>
     <param name="robot_description" command="cat $(find config_files)/urdfs/justina.xml" />
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher"/>
     <node name="gmapping_link_publisher" pkg="tf" type="static_transform_publisher" args="0 0 0.0 0 0 0 map odom 30"/>
@@ -21,6 +21,7 @@
 	</group>
     <group ns="navigation">
            <node name="map_server" pkg="map_server" type="map_server" output="screen" 
-                 args="$(env HOME)/RoboticsCourses/catkin_ws/src/student/arena_a.yaml"/>
+                 args="$(env HOME)/RoboticsCourses/catkin_ws/src/student/arena_a.yaml"/>	
+           <node name="fake_localization" pkg="fake_localization" type="fake_localization"/> 
     </group>
 </launch>

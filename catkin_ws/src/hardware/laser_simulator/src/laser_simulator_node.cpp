@@ -22,11 +22,11 @@ int main(int argc, char** argv)
     ros::Rate loop(10);
 
     nav_msgs::GetMap srvGetMap;
-    ros::service::waitForService("/navigation/localization/static_map");
-    ros::ServiceClient srvCltGetMap = n.serviceClient<nav_msgs::GetMap>("/navigation/localization/static_map");
+    ros::service::waitForService("/navigation/static_map");
+    ros::ServiceClient srvCltGetMap = n.serviceClient<nav_msgs::GetMap>("/navigation/static_map");
     srvCltGetMap.call(srvGetMap);
     nav_msgs::OccupancyGrid map = srvGetMap.response.map;
-    ros::Subscriber subCurrentPose = n.subscribe("/navigation/localization/current_pose", 1, callbackCurrentPose);
+    ros::Subscriber subCurrentPose = n.subscribe("/navigation/current_pose", 1, callbackCurrentPose);
     sensor_msgs::LaserScan scanInfo;
     scanInfo.header.frame_id = "laser_link";
     scanInfo.angle_min = -2;
