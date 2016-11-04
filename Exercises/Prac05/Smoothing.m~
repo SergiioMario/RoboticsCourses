@@ -1,0 +1,9 @@
+%%%THIS SCRIPT IS INTENDED TO BE RUN USING MATLAB (Yes, I'm sorry)%%%%%%        
+x_old = [ 3.5, 4, 4.5, 5, 5.5, 6,   6, 6,  6, 6,  6, 6,  6, 6, 6.5, 7, 7.5, 8, 8.5];
+y_old = [  10,10,  10,10,  10,10, 9.5, 9,8.5, 8,7.5, 7,6.5, 6,   6, ...
+           6,   6, 6,   6];
+
+
+plot(x_old,y_old, '.r-', 'MarkerSize', 20, 'color', 'blue')
+set(gca, 'xtick', [])
+set(gca, 'ytick', [])

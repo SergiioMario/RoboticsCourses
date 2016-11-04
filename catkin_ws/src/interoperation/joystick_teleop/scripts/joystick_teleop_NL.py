@@ -39,7 +39,7 @@ def callbackJoy(msg):
     rightTrigger = msg.axes[5]
     magnitudRight = math.sqrt(rightStickX*rightStickX + rightStickY*rightStickY)
     if magnitudRight > 0.1:
-        turboFactor = 0.5 + (-rightTrigger + 1.0)/4.0
+        turboFactor = 0.5# + (-rightTrigger + 1.0)/4.0
         leftSpeed = turboFactor*(rightStickY - 0.5*rightStickX)
         rightSpeed = turboFactor*(rightStickY + 0.5*rightStickX)
     else:

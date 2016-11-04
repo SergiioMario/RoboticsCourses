@@ -7,7 +7,7 @@ from std_msgs.msg import Float32MultiArray
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import TransformStamped
 from geometry_msgs.msg import Twist
-from hardware_tools import Roboclaw
+from hardware_tools import roboclaw_driver as Roboclaw
 import tf
 
 def printHelp():
@@ -95,7 +95,7 @@ def main(portName, simulated):
         address = 0x80
         print "MobileBase.-> Serial port openned on \"" + portName + "\" at 38400 bps (Y)"
         print "MobileBase.-> Clearing previous encoders readings"
-        Roboclaw.ResetQuadratureEncoders(address)
+        Roboclaw.ResetEncoders(address)
     ###Variables for setting tire speeds
     global leftSpeed
     global rightSpeed
@@ -114,34 +114,31 @@ def main(portName, simulated):
                 leftSpeed = int(leftSpeed*127)
                 rightSpeed = int(rightSpeed*127)
                 if leftSpeed >= 0:
-                    Roboclaw.DriveForwardM2(address, leftSpeed)
+                    Roboclaw.ForwardM2(address, leftSpeed)
                 else:
-                    Roboclaw.DriveBackwardsM2(address, -leftSpeed)
+                    Roboclaw.BackwardM2(address, -leftSpeed)
                 if rightSpeed >= 0:
-                    Roboclaw.DriveForwardM1(address, rightSpeed)
+                    Roboclaw.ForwardM1(address, rightSpeed)
                 else:
-                    Roboclaw.DriveBackwardsM1(address, -rightSpeed)
+                    Roboclaw.BackwardM1(address, -rightSpeed)
         else:
             speedCounter -= 1
             if speedCounter == 0:
                 if not simulated:
-                    Roboclaw.DriveForwardM1(address, 0)
-                    Roboclaw.DriveForwardM2(address, 0)
+                    Roboclaw.ForwardM1(address, 0)
+                    Roboclaw.ForwardM2(address, 0)
                 else:
                     leftSpeed = 0
                     rightSpeed = 0
             if speedCounter < -1:
                 speedCounter = -1
         if not simulated:
-            encoderLeft = -Roboclaw.ReadQEncoderM2(address)
-            encoderRight = -Roboclaw.ReadQEncoderM1(address) #The negative sign is just because it is the way the encoders are wired to the roboclaw
-            #print "Encoder derecho: " + str(encoderRight)
-            #print "Encoder izquierdo: " + str(encoderLeft)
-            Roboclaw.ResetQuadratureEncoders(address)
+            c1, encoderLeft, c2 =  Roboclaw.ReadEncM2(address)
+            d1, encoderRight, d2 = Roboclaw.ReadEncM1(address)
+            Roboclaw.ResetEncoders(address)
         else:
-            encoderLeft = leftSpeed * 0.1 * 980 / 0.39
-            encoderRight = rightSpeed * 0.1 * 980 / 0.39
-        ###Odometry calculation
+            encoderLeft = -leftSpeed * 0.1 * 980 / 0.39
+            encoderRight = -rightSpeed * 0.1 * 980 / 0.39
         robotPos = calculateOdometry(robotPos, encoderLeft, encoderRight)
         #print "Encoders: " + str(encoderLeft) + "  " + str(encoderRight)
         ##Odometry and transformations
@@ -174,8 +171,8 @@ def main(portName, simulated):
         rate.sleep()
     #End of while
     if not simulated:
-        Roboclaw.DriveForwardM1(address, 0)
-        Roboclaw.DriveForwardM2(address, 0)
+        Roboclaw.ForwardM1(address, 0)
+        Roboclaw.ForwardM2(address, 0)
         Roboclaw.Close()
 #end of main()
 
