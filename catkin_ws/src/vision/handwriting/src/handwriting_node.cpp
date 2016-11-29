@@ -1,6 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include <opencv2/opencv.hpp>
+#include "ros/ros.h"
+#include "Perceptron.h"
 
 int main(int argc, char** argv)
 {
@@ -13,8 +15,13 @@ int main(int argc, char** argv)
     }
     
     std::cout << "INITIALIZING HANDWRITING RECOGNITION NODE..." << std::endl;
+    ros::init(argc, argv, "handwriting");
+    ros::NodeHandle n;
     std::cout << "Dataset location: " << folder << std::endl;
 
+    //
+    //LOAD TRAINING DATA FROM FILES
+    //
     std::vector<std::vector<cv::Mat> > data; //THIS VECTOR OF VECTORS WILL CONTAIN ALL TRAINING IMAGES
     
     for(int i=0; i < 10; i++)
@@ -48,20 +55,40 @@ int main(int argc, char** argv)
                 data[i][j].data[k] = bytes[k + j*784];
         }
     }
-
     std::cout << "Read a total of " << data.size() << " files with " << data[0].size() << " images in each file (Y)" << std::endl;
     
+    //
+    //THIS IS THE ACTUAL TRAINING
+    //
+    Perceptron p(data[0][0].rows * data[0][0].cols);
+    float tol            = 1.0;      //It should be a really small number
+    float gradient_mag   = tol + 1;  
+    int   attempts       = 0;     
+    float gradient_gain  = 0.1;      //It should be a even smaller number
+    float gradient_k     = 0;
+    int   digit_to_train = 5;        //Digit to be trained [0-9]
+    while(gradient_mag > tol && ++attempts < 10) //Set a large enough number of attempts
+    {
+        //TODO: UPDATE WEIGHTS AND THRESHOLD
+    }
+    std::cout << "Training finished after " << attempts << std::endl;
+
+    
+    //
+    //THIS IS JUST FOR DISPLAYING IMAGES IN A NICE WAY
+    //
     std::vector<int> img_display_counters;
-    for(int i=0; i < 10; i++) img_display_counters.push_back(0);
+    for(int i=0; i < 10; i++) img_display_counters.push_back(500);
     char cmd = 0;
     int digit = 0;
     
-    while ((cmd = cv::waitKey(15)) != 27)
+    while (ros::ok() && (cmd = cv::waitKey(15)) != 27)
     {
         if(cmd >= 0x30 && cmd <= 0x39)
         {
             digit = cmd - 0x30;
-            if(++img_display_counters[digit] >= 1000) img_display_counters[digit] = 0;
+            if(++img_display_counters[digit] >= 1000) img_display_counters[digit] = 500;
+            std::cout << "Output for this image: = "  << p.eval(data[digit][img_display_counters[digit]].data) << std::endl;
         }
         cv::imshow("Test", data[digit][img_display_counters[digit]]);
     }
