@@ -1,0 +1,3 @@
+<launch>
+        <node name="handwriting" pkg="handwriting" type="handwriting_node" args="-f $(find handwriting)/dataset" output="screen"/>
+</launch>
