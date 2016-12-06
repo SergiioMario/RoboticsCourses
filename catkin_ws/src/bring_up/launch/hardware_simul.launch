@@ -15,6 +15,7 @@
     </group>
 	<group ns="hri">
 	       <node name="rviz" pkg="rviz" type="rviz" args="-d $(find config_files)/rviz_conf/simul_config.rviz"/>
+           <node name="justina_gui" pkg="justina_simple_gui" type="justina_simple_gui_node" output="screen"/>
 	</group>
 	<group ns="interoperation">
 	       <node name="joystick_teleop" pkg="joystick_teleop" type="joystick_teleop_node.py" output="screen" />

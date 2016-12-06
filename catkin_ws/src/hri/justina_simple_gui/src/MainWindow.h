@@ -35,6 +35,9 @@ public slots:
     void navBtnExecPath_pressed();
     void navMoveChanged();
     
+    //HRI
+    void sprTxtFake_pressed();
+
     //Slots for signals emitted in the QtRosNode (e.g. a topic is received)
     void updateGraphicsReceived();
 

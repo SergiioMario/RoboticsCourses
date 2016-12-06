@@ -14,6 +14,7 @@ void QtRosNode::run()
     ros::Rate loop(10);
     this->cltCalculatePath = this->n->serviceClient<navig_msgs::CalculatePath>("/navigation/a_star");
     this->cltGetMap = this->n->serviceClient<nav_msgs::GetMap>("/navigation/static_map");
+    this->pubRecogSpeech = this->n->advertise<std_msgs::String>("/recognizedSpeech", 1);
     while(ros::ok() && !this->gui_closed)
     {
         //std::cout << "Ros node running..." << std::endl;
@@ -80,6 +81,13 @@ void QtRosNode::startMoveLateral(float dist)
 
 void QtRosNode::startMoveDistAngle(float dist, float angle)
 {
+}
+
+void QtRosNode::pubRecognizedSpeech(std::string recogString)
+{
+    std_msgs::String msg;
+    msg.data = recogString;
+    this->pubRecogSpeech.publish(msg);
 }
 
 void QtRosNode::getRobotPose(float& robotX, float& robotY, float& robotTheta)

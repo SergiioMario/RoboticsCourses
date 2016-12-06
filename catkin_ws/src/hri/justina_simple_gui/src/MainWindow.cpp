@@ -16,7 +16,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->navBtnCalcPath, SIGNAL(clicked()), this, SLOT(navBtnCalcPath_pressed()));
     QObject::connect(ui->navBtnExecPath, SIGNAL(clicked()), this, SLOT(navBtnExecPath_pressed()));
     QObject::connect(ui->navTxtMove, SIGNAL(returnPressed()), this, SLOT(navMoveChanged()));
-    
+    QObject::connect(ui->sprTxtFakeRecog, SIGNAL(returnPressed()), this, SLOT(sprTxtFake_pressed()));
 }
 
 MainWindow::~MainWindow()
@@ -196,6 +196,14 @@ void MainWindow::navMoveChanged()
             return;
     }
     qtRosNode->startMoveDistAngle(dist, angle);
+}
+
+//
+//HRI
+//
+void MainWindow::sprTxtFake_pressed()
+{
+    qtRosNode->pubRecognizedSpeech(this->ui->sprTxtFakeRecog->text().toStdString());
 }
 
 

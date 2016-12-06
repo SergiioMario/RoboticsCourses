@@ -22,6 +22,7 @@ public:
     ros::NodeHandle* n;
     ros::ServiceClient cltCalculatePath;
     ros::ServiceClient cltGetMap;
+    ros::Publisher pubRecogSpeech;
     bool gui_closed;
     
     void run();
@@ -36,6 +37,7 @@ public:
     void startGetClose(std::string goal_location);
     void startMoveLateral(float dist);
     void startMoveDistAngle(float dist, float angle);
+    void pubRecognizedSpeech(std::string recogString);
     void getRobotPose(float& robotX, float& robotY, float& robotTheta);
 
 signals:
