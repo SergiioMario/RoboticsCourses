@@ -1,4 +1,4 @@
-\documentclass[letterpaper,12pt]{article}
+\documentclass[a4paper]{article}
 \usepackage[spanish]{babel}
 \spanishdecimal{.}
 \selectlanguage{spanish}
@@ -281,6 +281,7 @@ Nótese que se está derivando con respecto a $p$ (puntos de la ruta suavizada),
 %%%%% MODELO CINEMÁTICO Y CONTROL DE POSICIÓN
 %%%%%
 \section{Modelo cinemático y control de posición}
+\label{sec:Control}
 En la sección \ref{sec:PathPlanning} se explicó el modo en que se puede calcular una ruta desde una configuración inicial hasta una final. El siguiente paso es hacer que el robot en efecto siga dicha ruta y para ello se empleará la teoría de control. 
 
 \subsection{Modelo en variables de estado}
@@ -310,7 +311,7 @@ Cuando se tiene un sistema lineal invariante con el tiempo de la forma
   \dot{x} &=& Ax + Bu\label{eq:SisLineal1}\\
   z &=& Cx + Du\label{eq:SisLineal2}
 \end{eqnarray}
-es sencillo probar su estabilidad. Basta con obtener los valores propios de la matriz $A$ y si todos tienen parte real estrictamente menor que cero, entonces se puede asegurar que el sistema (\ref{eq:SisLineal1})-(\ref{eq:SisLineal2}) es exponencialmente estable, o bien, se puede obtener la función de transferencia equivalente y verificar que todas las raíces del polinomio denominador tengan parte real estrictamente negativa.
+es sencillo probar su estabilidad: basta con obtener los valores propios de la matriz $A$ y si todos tienen parte real estrictamente menor que cero, entonces se puede asegurar que el sistema (\ref{eq:SisLineal1})-(\ref{eq:SisLineal2}) es exponencialmente estable, o bien, se puede obtener la función de transferencia equivalente y verificar que todas las raíces del polinomio denominador tengan parte real estrictamente negativa.
 
 Sin embargo, el sistema dado por las ecuaciones (\ref{eq:Kinematic1})-(\ref{eq:Kinematic3}) es no lineal y por lo tanto su estabilidad no se puede analizar con las herramientas descritas en el párrafo anterior. La estabilidad en el sentido de Lyapunov o estabilidad de puntos de equilibrio es una herramienta que nos permite analizar la estabilidad de sistemas no lineales. 
 
@@ -367,23 +368,139 @@ v_{r} &=& v_{max}e^{-\frac{e_{\theta}^{2}}{\alpha}} -
 \end{eqnarray}
 En estas ecuaciones se tienen cuatro parámetros de diseño: $v_{max}$ y $\omega_{max}$ son las velocidades lineales y angulares máximas respectivamente que el robot alcanzará durante su movimiento. La constante $\alpha$ tiene una función parecida a la $\psi$ en las ecuaciones (\ref{eq:Control11})-(\ref{eq:Control12}), solo que en este caso, al estar dividiendo, una $alpha$ más pequeña provocará un descenso más pronunciado en la magnitud de la velocidad lineal. El valor de $\beta$ determina qué tanto decrece la velocidad angular conforme decrece el error de ángulo. 
 
+
+%%%%%
+%%%%% CAMPOS POTENCIALES ARTIFICIALES
+%%%%%
 \section{Campos potenciales artificiales}
+En la sección \ref{sec:PathPlanning} se explicó cómo planear una ruta cuando se tiene una representación del ambiente y la seccion \ref{sec:Control} se dedicó al diseño de leyes de control que permitan seguir la ruta planeada. Sin embargo, ¿qué sucede cuando el robot tiene que evadir obstáculos que no están en el mapa y que no fueron contemplados en la planeación de la ruta? 
+
+Un forma de evadir obstáculos es mediante campos potenciales artificiales. Una función potencial es una función real diferenciable $U: R^n \rightarrow R$ que puede verse como una función de energía y que, por lo tanto, su gradiente $\nabla U(q)$, donde $q$ es la posición del robot, representa fuerza. 
+
+El gradiente de la función, dado por
+\begin{equation}
+  \label{eq:PotentialGradient}
+  \nabla U(q) = \left[\frac{\partial U}{\partial q_1},\dots,\frac{\partial U}{\partial q_n}\right]
+\end{equation}
+es un vector que apunta en la dirección de máximo cambio de $U$. Si esta función potencial se diseña de modo que tenga un mínimo en la posición meta y máximos locales en la posición de cada obstáculo que se desee evadir, entonces se puede mover al robot mediante el algoritmo de descenso del gradiente y esto hará que el robot continúe moviéndose hasta encontrar un punto $q^*$ en el cual $\nabla U(q^*) = 0$. 
+
+Los valores $q$ que satisfacen $\nabla U(q^*) = 0$ son llamados puntos críticos y pueden ser máximos locales, mínimos locales o puntos silla. Para determinar la naturaleza de un punto crítico, se puede utilizar la matriz Hessiana, dada por
+
+\begin{equation}
+  \label{eq:Hessian}
+  H(q) = \left[
+    \begin{tabular}{ccc}
+      $\frac{\partial^2 U}{\partial q_1^2}$ &$ \dots$ &$ \frac{\partial^2 U}{\partial q_1 \partial q_n}$\\
+      $\vdots$ & $\ddots$ & $\vdots$ \\
+      $\frac{\partial^2 U}{\partial q_n\partial q_1}$ &$ \dots$ &$ \frac{\partial^2 U}{\partial q_n^2}$
+    \end{tabular}
+\right]
+\end{equation}
+
+Si $H(q)$ evaluada en $q^*$ es no singular, significa que $q^*$ es un punto crítico aislado. Si $H(q^*)$ es positiva definida, entonces $q^*$ es un mínimo local, si es negativa definida, se trata de un máximo local, y en otro caso, $q^*$ es un punto silla. Si $H(q^*)$ es singular, entonces significa que $q^*$ no es un punto aislado, es decir, que la función potencial $U$ es ``plana'' en la región que contiene a $q^*$. 
+
+En general, si el robot se mueve siempre en sentido contrario al gradiente, en algún momento llegará a un mínimo local. Puede suceder que la condición inicial del robot corresponda a un máximo local o a un punto silla, en cuyo caso el robot no se moverá, pues en estos puntos el gradiente es cero. Esta situación es muy improbable, además, cualquier perturbación hará que el robot ``se mueva'' de ese punto y entonces se dirigirá al mínimo local, es decir, los puntos silla y los máximos son puntos inestables. 
 
 \subsection{Diseño mediante campos atractivos y repulsivos}
+Como se expuso previamente, la función potencial $U(q)$ debe diseñarse de modo que sea diferenciable, que tenga un mínimo en el punto meta, máximos locales en cada obstáculo, y todos sus puntos críticos deben ser aislados. Una forma sencilla de logralo es diseñando por separado dos campos: uno atractivo y otro repulsivo. La idea es que el punto meta debe generar una ``fuerza atractiva'' mientras que cada obstáculo debe generar una ``fuerza repulsiva''. 
+
+Algunas veces no es necesario diseñar primero el campo potencial y luego obtener su gradiente, sino que se puede diseñar directamente la fuerza correspondiente al gradiente. La fuerza atractiva se debe diseñar de modo que siempre se aleje del punto meta y las fuerzas repulsivas siempre deben tener una dirección que apunte hacia el obstáculo que se desea evadir, además, las fuerzas repulsivas deben crecer conforme la distancia a dicho obstáculo disminuye y ser muy pequeñas o cero, si el robot está lo suficientemente lejos. 
+
+Es importante recordar que las fuerzas tanto atractiva como repulsiva corresponden al gradiente de la función potencial, es decir, representan la dirección de máximo cambio, sin embargo, lo que se desea es alcanzar un mínimo, por lo que al aplicar el algoritmo de descenso del gradiente, el robot se moverá en sentido contrario a estas fuerzas. 
+
+En este curso, la fuerza atractiva que se utilizará está dada por
+\begin{equation}
+  \label{eq:attractive}
+  F_a = \zeta \ddfrac{\left(q - q_g\right) }{\Vert q - q_g \Vert}\qquad \zeta > 0
+\end{equation}
+donde $q$ es la posición actual del robot y $q_g$ es la posición a donde se desea llegar. Esta fuerza tiene una magnitud $\zeta$ constante pero su dirección apunta siempre en sentido contrario al punto meta. 
+
+La fuerza de repulsión está dada por:
+\begin{equation}
+  \label{eq:repulsive}
+  F_r = \begin{cases}
+    \eta\left(\sqrt{\frac{1}{\Vert q_{oi} - q\Vert} - \frac{1}{d_0}}\right)\ddfrac{q_{oi} - q}{\Vert q_{oi} - q\Vert}
+    & \qquad\textrm{si}\quad \Vert q_{oi} - q\Vert < d_0\\
+    0 & \qquad\textrm{en otro caso}
+  \end{cases}
+\end{equation}
+donde $q_{oi}$ es la posición del objeto $i$ y $d_0$ es una distancia de influencia tal que, si el robot está a una distancia mayor que ésta del objeto $i$, entonces la fuerza de repulsión es cero. Nótese que la magnitud de esta fuerza se incrementa conforme el robot se acerca al objeto y la raiz cuadrada produce una transición suave cuando el robot pasa por $d_0$.
+
+La fuerza resultante se calcula como 
+\begin{equation}
+  \label{eq:resulting}
+  F = F_a + \frac{1}{n}\sum_{i=1}^n F_r
+\end{equation}
+es decir, la fuerza atractiva más el promedio de las fuerzas repulsivas producidas por cada obstáculo.
+
+Una desventaja de generar campos potenciales mediante la suma de un campo atractivo más uno repulsivo es la posibilidad de tener mínimos locales. Esto se puede solucionar con la generación de funciones potenciales mediante otros métodos como el algoritmo de \textit{wavefront}. Este algoritmo no tiene el problema de los mínimos locales pero tienen la desventaja de necesitar de una discretización del espacio.
 
 \subsection{Movimiento por descenso del gradiente}
+Una vez diseñado el campo potencial y calculado el respectivo gradiente, sólo basta con mover al robot de acuerdo con el algoritmo \ref{alg:PotFields}. La constante $\alpha > 0$ debe ser lo suficientemente pequeña para evitar oscilaciones pero sin que ello conlleve un costo computacional muy alto. 
 
-\section{Conceptos básicos de visión computacional}
+Aunque en el algoritmo se indica que el robot seguirá moviéndose mientras la magnitud del gradiente sea mayor que cero, en una implementación real se fija una tolerancia y cuando la magnitud es menor que ésta, se detiene al robot. 
+\begin{algorithm}
+\DontPrintSemicolon
+\KwData{Posición inicial $q_s$, posición final $q_g$, posiciones $q_{oi}$ de los obstáculos}
+\KwResult{Secuencia de puntos $\{q_0,q_1, q_2, \dots\}$}
+$q_0 \leftarrow q_s$\;
+$i \leftarrow 0$\;
+\While{$\Vert\nabla U(q_i)\Vert > 0$}
+{
+  $q_{i+1} \leftarrow q_i - \alpha\nabla U(q_i)$\;
+  $i \leftarrow i + 1$
+}
+  \caption{Descenso del gradiente para mover al robot a través de un campo potencial.}
+  \label{alg:PotFields}
+\end{algorithm}
 
-\subsection{Espacios de color}
+Finalmente, para que el robot se mueva hacia cada punto $q_i$ generado por el descenso del gradiente, se pueden utilizar las leyes de control (\ref{eq:Control21})-(\ref{eq:Control22}).
 
-\subsection{Operadores morfológios}
+%\section{Conceptos básicos de visión computacional}
+
+%\subsection{Espacios de color}
+
+%\subsection{Operadores morfológicos}
 
 %\subsection{Extracción de planos a partir de nubes de puntos} 
 
 \section{Localización}
+El problema de la localización consiste en determinar la configuración del robot dadas las lecturas de los sensores y una representación del ambiente. La localización puede ser global o local. En este curos únicamente se cubrirán dos algoritmos para localizar al robot: el Filtro de Kalman Extendido y el método del histograma. 
 
 \subsection{El Filtro de Kalman Extendido}
+El Filtro de Kalman es un algoritmo que sirve para estimar un conjunto de variables a partir de un conjunto de mediciones que contienen ruido y de un modelo del sistema cuyos procesos también contienen ruido. Este filtro puede ser considerado como un filtro bayesiano, pues la estimación de las variables es en realidad la estimación de una distribución de probabilidad conjunta dada una distribución previa y un conjunto de mediciones. 
+
+Desde el punto de vista de la teoría de control, el Filtro de Kalman es un observador en el que la ganancia se calcula con base en las propiedades estadísticas del ruido tanto en las mediciones como en el proceso. 
+
+El Filtro de Kalman Extendido (EKF por sus siglas en inglés) es la versión del Filtro de Kalman para sistemas no lineales. En el EKF se hace una linealización alrededor de las estimaciones actuales y se aplican los mismos pasos que se usan en sistemas lineales. 
+
+Para realizar la estimación de la posición del robot, primero se requiere una versión discreta del modelo cinemático. Discretizando el modelo (\ref{eq:Kinematic1})-(\ref{eq:Kinematic3}), y considerando que se tiene ruido de proceso, se tiene:
+\begin{eqnarray}
+x_{k+1} &=& x_k + \Delta t \frac{v_l + v_r}{2}\cos\theta_k + \nu_1\label{eq:Discrete1}\\
+y_{k+1} &=& y_k + \Delta t \frac{v_l + v_r}{2}\sin\theta_k + \nu_2\\
+\theta_{k+1} &=& \theta_k + \Delta t \frac{v_r - v_il}{L} + \nu_3\label{eq:Discrete3}
+\end{eqnarray}
+donde $\Delta t$ representa el periodo de muestreo y $\nu = \left[\nu_1\;\nu_2\;\nu_3\right]^T$ es ruido gaussiano sin correlación temporal, media cero y matriz de covarianza $Q$. 
+
+La estimación de la posición del robot por filtro de Kalman consta de los siguientes pasos:
+
+\textbf{Predicción:} Con base en el modelo cinemático y el modelo de observación, se predice el siguiente estado y la salida considerando que el ruido es cero tanto en el modelo de transición de estados como en el modelo de obsevación:
+\begin{eqnarray*}
+\hat{X}(k+1|k) &=& \hat{F}(X(k|k), u(k))\\
+\hat{Z}(k+1|k) &=& \hat{X}(k+1|k)\\
+P(k+1|k) &=& J(k)P(k|k)J^T(k) + Q
+\end{eqnarray*}
+donde la matriz $P$ es la covarianza del error de estimación y $J$ es el Jacobiano de la función $F$ con respecto a $X$.
+
+\textbf{Actualización:} Con base en el error de observación y la covarianza del error de estimación se calcula el estado siguiente estimado.
+\begin{eqnarray*}
+S(k+1) &=& H(k+1)P(k|k+1)H^T(k+1) + R\\
+K(k+1) &=& P(k+1|k)H^T(k+1)S(k+1)^{-1}\\
+\hat{X}(k+1|k+1) &=& \hat{X}(k+1|k) + K(k+1)(Z(k+1) - \hat{Z}(k+1|k))\\
+P(k+1|k+1) &=& (I-P(k+1)H(k+1))P(k+1|k)
+\end{eqnarray*}
+donde $H$ es el Jacobiano del modelo de observación, que en este caso es la identidad dado que se considera que se mide el estado completo del robot. La matriz $K$ es conocida como ganancia de Kalman.
+
 
 \subsection{Método del histograma}
 La localización por el método de histograma permite estimar la posición del robot con base en observaciones del ambiente pero tomando en cuenta las probabilidades de error tanto en la observación como en el movimiento. Se asume que el robot sólo puede estar en configuraciones discretas bien definidas por lo que el método es factible sólo cuando se tienen pocos grados de libertad, como en el caso del robot diferencial que se mueve sólo en un plano. 
@@ -395,6 +512,56 @@ Se asume que la posición inicial se desconoce por completo, por lo que el prime
 P(x_i) = \ddfrac{1}{n}
 \end{equation}
 es decir, inicialmente se tiene una distribución uniforme que indica total incertidumbre sobre la posición actual del robot. El objetivo es construir una función de densidad de probabilidad que, conforme el robot se mueva y realice observaciones, tienda hacia una distribución unimodal cuyo máximo indique la posición actual del robot.
+
+\textbf{Observación.} 
+
+Para comenzar a estimar la posición del robot es necesario realizar observaciones el ambiente. Para ello, a cada nodo $v$ del grafo $G$ se le asigna una marca que ``debería'' ser observada si el robot se encontrara en ese nodo. 
+
+Con cada observación se debe modificar la probabilidad de cada nodo, dado que se identificó determinada marca. Considérese la posición del robot como una variable aleatoria $V$ que puede tomar los valores $v_i =\left\{\textrm{entrada-izquierda, sala-frente,...}\right\}$ y sea $O = \{o_j\}$ la variable aleatoria que representa la marca observada.
+
+
+Una vez hecha una observación, se desea actualizar la probabilidad de cada nodo $v_i$, dada la observación $o_j$, esto es
+\begin{equation}
+P(V = v_i| O = o_j)
+\end{equation}
+que de acuerdo con el teorema de Bayes se puede calcular como
+\begin{equation}
+P(v_i| o_j) = \frac{P\left(o_j|v_i\right)P\left(v_i\right)}{P\left(o_j\right)}
+\end{equation}
+En la ecuación anterior, el término $P\left(o_j|v_i\right)$ es la probabilidad  de que se  observe una determinada marca si se asume que el robot está en el nodo $v_i$, es decir, la probabilidad de $o_j$ en la hipótesis $v_i$. Esta probabilidad se calcula de forma estadística en la etapa de entrenamiento. Si se observa la marca $o_j$ existen dos posibles casos: que la marca corresponda al nodo en el que se asume el robot se encuentra o, que no corresponda. Llamaremos al primer caso un acierto verdadero (AV), y al segundo, un falso positivo (FP). En este trabajo se consideraron las probabilidades
+\begin{eqnarray}
+P(AV)&=&0.6\\
+P(FP)&=&0.25
+\end{eqnarray}
+El término $P\left(v_i\right)$ denota la probabilidad a priori del nodo $v_i$ y el término $P\left(o_j\right)$ puede calcularse, de acuerdo con el teorema de la probabilidad total, como
+\begin{equation}
+P\left(o_j\right) = \sum_i^n P\left(o_j|v_i\right)P\left(v_i\right)
+\end{equation}
+donde $n$ es el número total de nodos del grafo $G$ que representa el ambiente. 
+
+\textbf{Movimiento}
+Como se explicó anteriormente, se asume que el robot puede ejecutar tres movimientos: frente, izquierda y derecha. Para modelar la incertidumbre en el movimiento, se asume que existen dos posibles casos: el robot alcanza el nodo deseado o, el robot se queda en el nodo en que ya estaba. Llamaremos al primer caso movimiento correcto (MC) y al segundo, movimiento con falla (MF). Al igual que en el modelo de observación, las probabilidades de ambos casos se calcularon mediante experimentos en la etapa de entrenamiento. Los valores usados fueron:
+\begin{eqnarray}
+P(MC) &=& 0.7\\
+P(MF) &=& 0.3
+\end{eqnarray}
+Para calcular la probabilidad de cada nodo después de un movimiento, se usa nuevamente el teorema de la probabilidad total. La probabilidad a posteriori de un nodo $v_i$ es la probabilidad de que el robot haya llegado a ese nodo por un movimiento correcto o bien, por un movimiento con falla, es decir
+\begin{equation}
+P\left(v_i^t\right) = \sum_k P\left(v_i^t|v_k^{t-1}\right) P\left(v_k^{t-1}\right)
+\end{equation}
+donde los superíndices $t$ y $t-1$ indican el tiempo actual y el tiempo anterior, respectivamente. Si se considera que el robot solo puede llegar a un nodo por un movimiento correcto (viniendo desde otro nodo) o por uno con falla (el robot permanece en el mismo nodo), entonces la ecuación se puede escribir como
+\begin{equation}
+P\left(v_i^t\right) = P\left(v_i^t|v_k^{t-1}\right)P\left(v_k^{t-1}\right) + P\left(v_i^t|v_i^{t-1}\right)P\left(v_i^{t-1}\right)
+\end{equation}
+El término $P\left(v_i^t|v_k^{t-1}\right)$ indica la probabilidad de que el robot llegue al nodo $v_i$ desde el nodo $v_k$ (un movimiento correcto), es decir
+\begin{equation}
+P\left(v_i^t|v_k^{t-1}\right) = P(MC)
+\end{equation}
+y de modo similar
+\begin{equation}
+P\left(v_i^t|v_i^{t-1}\right) = P(MF)
+\end{equation}
+
 
 \section{La plataforma ROS}
 
