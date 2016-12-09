@@ -7,6 +7,7 @@
 #include "Controls.h"
 
 nav_msgs::Path goalPath;
+bool isMoving = false;
 
 void callback_path(const nav_msgs::Path::ConstPtr& msg)
 {
@@ -15,6 +16,12 @@ void callback_path(const nav_msgs::Path::ConstPtr& msg)
 
 void callback_start(const std_msgs::Empty::ConstPtr& msg)
 {
+    
+}
+
+void callback_stop(const std_msgs::Empty::ConstPtr& msg)
+{
+    isMoving = false;
 }
 
 int main(int argc, char** argv)
@@ -25,10 +32,9 @@ int main(int argc, char** argv)
     ros::NodeHandle n;
     ros::Publisher pubSp = n.advertise<std_msgs::Float32MultiArray>(
         "/hardware/mobile_base/speeds", 1);
-    ros::Subscriber subGoalPath = n.subscribe("/navigation/a_star",
-                                              1, callback_path);
-    ros::Subscriber subStart = n.subscribe("/navigation/start_path",
-                                           1, callback_start);
+    ros::Subscriber subGoalPath = n.subscribe("/navigation/a_star", 1, callback_path);
+    ros::Subscriber subStart = n.subscribe("/navigation/start_path",1, callback_start);
+    ros::Subscriber subStop = n.subscribe(("/stop",1, callback_stop);
     
     ros::Rate loop(10);
     tf::TransformListener tf;
