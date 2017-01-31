@@ -1,0 +1,84 @@
+\documentclass[letterpaper,12pt]{article}
+\usepackage[spanish]{babel}
+\spanishdecimal{.}
+\selectlanguage{spanish}
+\usepackage[spanish,onelanguage,ruled]{algorithm2e}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry}
+\usepackage{hyperref}
+\usepackage{verbatim}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\newcommand\ddfrac[2]{\frac{\displaystyle #1}{\displaystyle #2}}
+
+\title{Práctica 1 \\ Instalación de Herramientas de Software}
+\author{Laboratorio de Bio-Robótica}
+\date{Construcción de Robots Móviles}
+\begin{document}
+\renewcommand{\tablename}{Tabla}
+\maketitle
+\section*{Objetivos}
+\begin{itemize}
+\item Familiarizar al alumno con el uso del sistema operativo Linux, distribución Ubuntu versión 14.04.
+\item Aprender los conceptos básicos de la plataforma ROS (Robot Operating System).
+\end{itemize}
+ 
+\section{Introducción}
+ROS es un \textit{middleware} de código abierto (\textit{open source}) que provee la funcionalidad comúnmente necesaria en el desarrollo de software para robots móviles autónomos, como paso de mensajes y manejo de paquetes. El robot móvil que se construirá durante el curso utiliza ROS instalado en la minicomputadora RaspberryPi, por lo que es importante conocerlo.
+
+ROS puede describirse en dos niveles conceptuales: el sistema de archivos y el grafo de procesos.
+
+\textbf{El sistema de archivos.} Se refiere al modo en que están organizados los recursos en disco:
+\begin{itemize}
+\item \textbf{\textit{Workspace:}} Se refiere a las carpetas que contienen paquetes de ROS.
+\item \textbf{Paquete:} Es la principal unidad de organización de software en ROS. Pueden contener nodos, bibliotecas, datasets, archivos de configuración y otros.
+\item \textbf{Manifiesto:} Definido por el archivo \texttt{package.xml} en cada paquete. Provee metadatos acerca de cada paquete. 
+\item \textbf{Mensaje:} Archivos con extensión \texttt{.msg}. Definen estructuras de datos para el paso de mensajes en ROS.
+\item \textbf{Servicio:} Archivos con extensión \texttt{.srv}. Definen estructuras de tipo \textit{request-response}. Utilizan mensajes para dicha definición.
+\end{itemize}
+
+\textbf{Grafo de procesos.} Es una red \textit{peer-to-peer} de procesos. Los componentes básicos son:
+\begin{itemize}
+\item \textbf{Roscore:} Inicializa el sistema ROS: un máster + rosout + un servidor de parámetros.
+\item \textbf{Nodos:} Es simplemente un ejecutable que usa ROS para comunicarse con otros nodos.
+\item \textbf{Tópicos:} Algo similar a una variable cuyo contenido puede ser compartido entre todos los nodos mediante un patrón de publicación y suscripción. 
+\item \textbf{Servicios:} Otra forma de comunicar nodos pero con un patrón de petición y respuesta.
+\item \textbf{Servidor de parámetros:} Es un diccionario compartido. Todos los nodos pueden leer y escribir parámetros en tiempo de ejecución.
+\end{itemize}
+
+\section{Desarrollo}
+\subsection{Instalación de Ubuntu 14.04}
+Instale Ubuntu 14.04, para ello, descargue la imagen de la siguiente dirección:
+
+\url{http://releases.ubuntu.com/14.04/}
+
+Para instalar Ubuntu desde Windows, se pueden seguir las instrucciones de la siguiente página:
+
+\url{http://www.ubuntu.com/download/desktop/create-a-usb-stick-on-windows}
+
+Asegúrese de instalar la versión correcta, de 32 o 64 bits. 
+
+\subsection{Instalación de ROS}
+
+Una vez instalado Ubuntu, instale ROS Indigo. Las instrucciones se encuentran en la siguiente página:
+
+\url{http://wiki.ros.org/indigo/Installation/Ubuntu}
+
+En el paso 1.4, seleccione la opción \texttt{Desktop-Full}. Es importante haber instalado Ubuntu 14.04, dado que algunas de las instrucciones contenidas en esta página sólo funcionan correctamente en Ubuntu 13.10 y 14.04. También es muy recomendable instalar todo con las opciones por default, lo que facilitará los desarrollos del resto del curso. 
+
+\subsection{Tutoriales\label{tutorials}}
+
+Ejecute las instrucciones contenidas en los tutoriales 1, 3, 4, 11 y 14 del nivel principiante de la siguiente dirección:
+
+\url{http://wiki.ros.org/ROS/Tutorials}
+
+Estos tutoriales sirven para crear dos \textit{paquetes}: el primero contiene dos \textit{nodos}, uno de los cuales publica un \textit{tópico} y el otro se suscribe al mismo; el segundo contiene otros dos nodos, uno que atiende un \textit{servicio} y el otro lo solicita y espera una respuesta. 
+
+\section{Evaluación}
+
+La práctica se considerará entregada si los cuatro nodos del punto \ref{tutorials} funcionan correctamente, esto es, que la salida sea la descrita en los tutoriales. 
+
+\end{document}
