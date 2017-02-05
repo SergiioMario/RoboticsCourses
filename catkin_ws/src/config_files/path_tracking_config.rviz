@@ -272,6 +272,14 @@ Visualization Manager:
       Name: Map
       Topic: /navigation/map
       Value: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /hri/visualization_marker
+      Name: Marker
+      Namespaces:
+        pot_fields: true
+      Queue Size: 100
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48

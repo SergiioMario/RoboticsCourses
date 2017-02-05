@@ -61,15 +61,38 @@ int main(int argc, char** argv)
     //THIS IS THE ACTUAL TRAINING
     //
     Perceptron p(data[0][0].rows * data[0][0].cols);
-    float tol            = 1.0;      //It should be a really small number
-    float gradient_mag   = tol + 1;  
-    int   attempts       = 0;     
-    float gradient_gain  = 0.1;      //It should be a even smaller number
-    float gradient_k     = 0;
-    int   digit_to_train = 5;        //Digit to be trained [0-9]
-    while(gradient_mag > tol && ++attempts < 10) //Set a large enough number of attempts
+    float tol = 0.001;
+    float gradient_mag = tol + 1;
+    int attempts = 0;
+    float gradient_gain = 0.000005;
+    float gradient_k = 0;
+    int digit_to_train = 8;
+    while(gradient_mag > tol && ++attempts < 300)
     {
-        //TODO: UPDATE WEIGHTS AND THRESHOLD
+        std::vector<float> last_w = p.w;
+        float last_threshold = p.threshold;
+        for(size_t i=0; i < 10; i++)
+        {
+            float training_y = i == digit_to_train ? 1.0 : 0;
+            float estimated_y = 0;
+            for(size_t j=0; j < 500; j++)
+            {
+                estimated_y = p.eval(data[i][j].data);
+                float temp = (training_y - estimated_y)*(estimated_y - estimated_y*estimated_y);
+                for(size_t k=0; k < p.w.size(); k++)
+                {
+                    gradient_k = temp * data[i][j].data[k];
+                    p.w[k] += gradient_gain * gradient_k;
+                }
+                gradient_k = temp; //the (n+1)-th input corresponding to the threshold is always 1
+                p.threshold += gradient_gain * gradient_k;
+            }
+        }
+        gradient_mag = 0;
+        for(size_t i=0; i < p.w.size(); i++)
+            gradient_mag += fabs(p.w[i] - last_w[i]);
+        gradient_mag += fabs(p.threshold -last_threshold);
+        std::cout << "Current gradient magnitud: " << gradient_mag << std::endl;
     }
     std::cout << "Training finished after " << attempts << std::endl;
 

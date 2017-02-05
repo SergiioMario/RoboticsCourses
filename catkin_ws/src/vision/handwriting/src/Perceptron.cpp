@@ -15,7 +15,10 @@ Perceptron::~Perceptron()
 
 float Perceptron::eval(unsigned char* data)
 {
-    //TODO: Implement sigmoid function (with threshold)
+    float sum = 0;
+    for(int i=0;  i < w.size(); i++)
+        sum += w[i] * data[i];
+    sum -= threshold;
 
-    return 0;
+    return 1.0/(1.0 + exp(-sum));
 }
