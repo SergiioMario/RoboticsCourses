@@ -1,25 +1,33 @@
 \documentclass[letterpaper,12pt]{article}
 \usepackage[spanish]{babel}
 \spanishdecimal{.}
+\selectlanguage{spanish}
+\usepackage[spanish,onelanguage,ruled]{algorithm2e}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
-\usepackage[top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm]{geometry}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry}
 \usepackage{hyperref}
+\usepackage{verbatim}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\newcommand\ddfrac[2]{\frac{\displaystyle #1}{\displaystyle #2}}
 
 \title{Práctica 1 \\ Instalación de Herramientas de Software}
-\author{M.I. Marco Negrete}
-\date{Robots Móviles y Agentes Inteligentes}
+\author{Laboratorio de Bio-Robótica}
+\date{Construcción de Robots Móviles}
 \begin{document}
 \renewcommand{\tablename}{Tabla}
 \maketitle
 \section*{Objetivos}
 \begin{itemize}
 \item Familiarizar al alumno con el uso del sistema operativo Linux, distribución Ubuntu versión 14.04.
-\item Aprender los conceptos básicos de ROS (Robot Operating System).
+\item Aprender los conceptos básicos de la plataforma ROS (Robot Operating System).
 \end{itemize}
-
+ 
 \section{Introducción}
-ROS es un \textit{middleware} de código abierto (\textit{open source}) que provee la funcionalidad comúnmente necesaria en el desarrollo de software para robots móviles autónomos, como paso de mensajes y manejo de paquetes. La robot Justina y los demás robots móviles que se usarán durante el resto del curso utilizan ROS como plataforma de desarrollo, por lo que es importante conocerlo.
+ROS es un \textit{middleware} de código abierto (\textit{open source}) que provee la funcionalidad comúnmente necesaria en el desarrollo de software para robots móviles autónomos, como paso de mensajes y manejo de paquetes. El robot móvil que se construirá durante el curso utiliza ROS instalado en la minicomputadora RaspberryPi, por lo que es importante conocerlo.
 
 ROS puede describirse en dos niveles conceptuales: el sistema de archivos y el grafo de procesos.
 
@@ -63,11 +71,11 @@ En el paso 1.4, seleccione la opción \texttt{Desktop-Full}. Es importante haber
 
 \subsection{Tutoriales\label{tutorials}}
 
-Ejecute las instrucciones contenidas en los tutoriales 1, 3, 4, 11 y 14 de la siguiente dirección:
+Ejecute las instrucciones contenidas en los tutoriales 1, 3, 4, 11 y 14 del nivel principiante de la siguiente dirección:
 
 \url{http://wiki.ros.org/ROS/Tutorials}
 
-Estos tutoriales sirven para crear dos \textit{paquetes}: el primero contiene dos \textit{nodos}, uno de los cuales publica un \textit{tópico} y el otro se suscribe al mismo; el segundo contiene otros dos nodos, uno de los cuales atiende un \textit{servicio} y el otro lo solicita y espera una respuesta. 
+Estos tutoriales sirven para crear dos \textit{paquetes}: el primero contiene dos \textit{nodos}, uno de los cuales publica un \textit{tópico} y el otro se suscribe al mismo; el segundo contiene otros dos nodos, uno que atiende un \textit{servicio} y el otro lo solicita y espera una respuesta. 
 
 \section{Evaluación}
 

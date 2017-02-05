@@ -16,7 +16,7 @@ void callback_path(const nav_msgs::Path::ConstPtr& msg)
 
 void callback_start(const std_msgs::Empty::ConstPtr& msg)
 {
-    
+    isMoving = true;
 }
 
 void callback_stop(const std_msgs::Empty::ConstPtr& msg)
@@ -30,11 +30,10 @@ int main(int argc, char** argv)
     std::cout<<"INIT LOW LEVEL CTRL BY MARCOSOFT..."<< std::endl;
     ros::init(argc, argv, "low_level_control");
     ros::NodeHandle n;
-    ros::Publisher pubSp = n.advertise<std_msgs::Float32MultiArray>(
-        "/hardware/mobile_base/speeds", 1);
+    ros::Publisher pubSp = n.advertise<std_msgs::Float32MultiArray>("/hardware/mobile_base/speeds", 1);
     ros::Subscriber subGoalPath = n.subscribe("/navigation/a_star", 1, callback_path);
     ros::Subscriber subStart = n.subscribe("/navigation/start_path",1, callback_start);
-    ros::Subscriber subStop = n.subscribe(("/stop",1, callback_stop);
+    ros::Subscriber subStop = n.subscribe("/stop",1, callback_stop);
     
     ros::Rate loop(10);
     tf::TransformListener tf;
@@ -52,8 +51,7 @@ int main(int argc, char** argv)
         tf::Quaternion q = t.getRotation();
         robotTheta = atan2((float)q.z(), (float)q.w()) * 2;
 
-        msgSpeeds.data = Controls::CalculateSpeeds(robotX, robotY, robotTheta,
-                                                   goalX,  goalY, 1);
+        msgSpeeds.data = Controls::CalculateSpeeds(robotX, robotY, robotTheta, goalX,  goalY, 1);
         pubSp.publish(msgSpeeds);
         
         ros::spinOnce();
