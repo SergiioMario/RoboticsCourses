@@ -21,6 +21,15 @@ MainWindow::MainWindow(QWidget *parent) :
     giDistSensors.push_back(scRobot->addEllipse(265, 120, 10,10, QPen(Qt::darkRed), QBrush(Qt::darkRed)));
     ui->graphicsViewRobot->setScene(scRobot);
 
+    QIcon icoFwd(":/images/btnUp");
+    QIcon icoBwd(":/images/btnDown");
+    QIcon icoLeft(":/images/btnLeft");
+    QIcon icoRight(":/images/btnRight");
+    ui->btnFwd->setIcon(icoFwd);
+    ui->btnBwd->setIcon(icoBwd);
+    ui->btnLeft->setIcon(icoLeft);
+    ui->btnRight->setIcon(icoRight);
+
     QObject::connect(ui->btnFwd, SIGNAL(pressed()), this, SLOT(btnFwdPressed()));
     QObject::connect(ui->btnFwd, SIGNAL(released()), this, SLOT(btnFwdReleased()));
 }
