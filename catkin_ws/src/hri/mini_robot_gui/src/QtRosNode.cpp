@@ -15,6 +15,9 @@ QtRosNode::QtRosNode()
     sensorAccelerometer[2] = 0;
     leftSpeed  = 0;
     rightSpeed = 0;
+    for(int i=0; i < 30; i++) accelMvnAvgQueue.push_back(0);
+    accelMvnAvg = 0;
+    
 }
 
 QtRosNode::~QtRosNode()
@@ -24,18 +27,13 @@ QtRosNode::~QtRosNode()
 void QtRosNode::run()
 {    
     ros::Rate loop(20);
-    subDistanceSensors = n->subscribe("/minirobot/hardware/distance_sensors", 1, &QtRosNode::callbackDistanceSensors, this);
-    subLightSensorL    = n->subscribe("/minirobot/hardware/light_sensor_left", 1, &QtRosNode::callbackLightSensorLeft, this);
-    subLightSensorR    = n->subscribe("/minirobot/hardware/light_sensor_right", 1, &QtRosNode::callbackLightSensorRight, this);
-    subTempSensor      = n->subscribe("/minirobot/hardware/temperature", 1, &QtRosNode::callbackTemperature, this);
-    subBattSensor      = n->subscribe("/minirobot/hardware/battery", 1, &QtRosNode::callbackBattery, this);
-    subAccelerometer   = n->subscribe("/minirobot/hardware/accelerometer", 1, &QtRosNode::callbackAccelerometer, this);
-    pubSpeeds          = n->advertise<std_msgs::Int16MultiArray>("/minirobot/hardware/speeds", 1);
+    subSensors = n->subscribe("/minirobot/hardware/sensors", 10, &QtRosNode::callbackSensors, this);
+    pubSpeeds  = n->advertise<std_msgs::Float32MultiArray>("/minirobot/hardware/motor_speeds", 10);
 
-    std_msgs::Int16MultiArray msgSpeeds;
+    std_msgs::Float32MultiArray msgSpeeds;
     msgSpeeds.data.push_back(0);
     msgSpeeds.data.push_back(0);
-    bool isZeroSpeedSent = false;
+    int isZeroSpeedSent = 0;
   
     while(ros::ok() && !this->gui_closed)
     {
@@ -44,16 +42,16 @@ void QtRosNode::run()
         msgSpeeds.data[1] = rightSpeed;
         if(leftSpeed == 0 && rightSpeed == 0)
         {
-            if(!isZeroSpeedSent)
+            if(isZeroSpeedSent > 0)
             {
                 pubSpeeds.publish(msgSpeeds);
-                isZeroSpeedSent = true;
+                isZeroSpeedSent--;
             }
         }
         else
         {
             pubSpeeds.publish(msgSpeeds);
-            isZeroSpeedSent = false;
+            isZeroSpeedSent = 5;
         }
         emit updateGraphics();
         ros::spinOnce();
@@ -68,44 +66,33 @@ void QtRosNode::setNodeHandle(ros::NodeHandle* nh)
     
 }
 
-void QtRosNode::callbackDistanceSensors(const std_msgs::Int16MultiArray::ConstPtr& msg)
+void QtRosNode::callbackSensors(const std_msgs::Float32MultiArray::ConstPtr& msg)
 {
-    if(msg->data.size() != 8)
+    if(msg->data.size() != 15)
     {
-        std::cout << "QtRosNode.->Sensor distance message must be 8-data lenght!!" << std::endl;
+        std::cout << "QtRosNode.->Sensor message must be 15-data lenght!!" << std::endl;
         return;
     }
-    for(int i=0; i < msg->data.size(); i++)
+    for(int i=0; i < 8; i++)
         sensorDistances[i] = msg->data[i];
-}
+    for(int i=8; i < 11; i++)
+        sensorAccelerometer[i-8] = msg->data[i];
+    sensorLightL = msg->data[11];
+    sensorLightR = msg->data[12];
+    sensorTemp   = msg->data[13];
+    sensorBatt   = msg->data[14];
 
-void QtRosNode::callbackLightSensorLeft(const std_msgs::Int16::ConstPtr& msg)
-{
-    sensorLightL = msg->data;
-}
-
-void QtRosNode::callbackLightSensorRight(const std_msgs::Int16::ConstPtr& msg)
-{
-    sensorLightR = msg->data;
-}
-
-void QtRosNode::callbackTemperature(const std_msgs::Int16::ConstPtr& msg)
-{
-    sensorTemp = msg->data;
-}
-
-void QtRosNode::callbackBattery(const std_msgs::Int16::ConstPtr& msg)
-{
-    sensorBatt = msg->data;
-}
-
-void QtRosNode::callbackAccelerometer(const std_msgs::Int16MultiArray::ConstPtr& msg)
-{
-    if(msg->data.size() !=3)
+    accelMvnAvg = accelMvnAvgQueue[0];
+    for(int i=1; i <accelMvnAvgQueue.size(); i++)
     {
-        std::cout << "QtRosNode.->Accelerometer message must be 3-data lenght!!" << std::endl;
-        return;
+        accelMvnAvgQueue[i-1] = accelMvnAvgQueue[i];
+        accelMvnAvg += accelMvnAvgQueue[i];
     }
-    for(int i=0; i < msg->data.size(); i++)
-        sensorAccelerometer[i] = msg->data[i];
+    float accel = sensorAccelerometer[0] * sensorAccelerometer[0];
+    accel += sensorAccelerometer[1] * sensorAccelerometer[1];
+    accel += sensorAccelerometer[2] * sensorAccelerometer[2];
+    accel = sqrt(accel);
+    accelMvnAvgQueue[accelMvnAvgQueue.size()-1] = accel;
+    accelMvnAvg /= accelMvnAvgQueue.size();
+        
 }

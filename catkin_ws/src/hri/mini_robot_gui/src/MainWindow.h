@@ -34,12 +34,23 @@ public:
     QGraphicsRectItem* giLeftTire;
     QGraphicsRectItem* giRightTire;
     QGraphicsEllipseItem* giRearTire;
+    //Elements for drawing accelerometer arrows
+    QGraphicsScene* scAccel;
+    QGraphicsLineItem* giAccelX;
+    QGraphicsLineItem* giAccelY;
+    QGraphicsLineItem* giAccelZ;
 
 public slots:
     //Slots for signals emitted in the QtRosNode (e.g. a topic is received)
     void updateGraphicsReceived();
     void btnFwdPressed();
     void btnFwdReleased();
+    void btnBwdPressed();    
+    void btnBwdReleased();
+    void btnLeftPressed();
+    void btnLeftReleased();
+    void btnRightPressed();
+    void btnRightReleased();
 
 private:
     Ui::MainWindow *ui;
