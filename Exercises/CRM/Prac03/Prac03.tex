@@ -14,10 +14,15 @@
 \usepackage{mathtools}
 \usepackage{listings}
 \usepackage{color}
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
 \definecolor{backcolour}{rgb}{0.95,0.95,0.92}
 \newcommand\ddfrac[2]{\frac{\displaystyle #1}{\displaystyle #2}}
 \lstset{backgroundcolor=\color{backcolour}, basicstyle=\footnotesize}
-\lstset{xleftmargin=1cm, xrightmargin=1cm, breaklines=true}
+\lstset{xleftmargin=0.5cm, xrightmargin=0.5cm, breaklines=true}
+\lstset{commentstyle=\color{codegreen}, keywordstyle=\color{magenta}}
+\lstset{numberstyle=\tiny\color{codegray}, stringstyle=\color{codepurple}}
 
 \title{Práctica 3 \\ Implementación de un nodo de ROS en la tarjeta arduino}
 \author{Laboratorio de Bio-Robótica}
@@ -49,7 +54,7 @@ Descargue el IDE de Arduino de la página \url{https://www.arduino.cc/en/Main/So
 
 Descomprima el archivo (se puede hacer mediante un click derecho y la opción \textit{Extract here}), abra una terminal y cambie el directorio de trabajo a la carpeta que se acaba de extraer. Ejecute el archivo \texttt{install.sh}:
 
-Suponiendo que el archivo descargado sea \texttt{arduino-1.8.1-linux64.tar.xz} y la carpeta de descargas esté en \texttt{~/Downloads}, los comandos para instalar el IDE serían:
+Suponiendo que el archivo descargado sea \texttt{arduino-1.8.1-linux64.tar.xz} y la carpeta de descargas esté en \texttt{$\sim$/Downloads}, los comandos para instalar el IDE serían:
 \begin{lstlisting}[language=bash]
 $  cd ~/Downloads      
 $  tar xf arduino-1.8.1-linux64.tar.xz     #Descomprime el archivo
@@ -59,14 +64,70 @@ $  ./install.sh
 
 Durante la instalación, seleccione siempre las opciones por default. 
 
-\subsection{Instalación de la biblioteca \texttt{rosserial_arduino}}
+\subsection{Instalación de la biblioteca \texttt{rosserial\_arduino}}
+\textbf{Nota.} Se asume que el alumno ya tiene instalado Ubuntu 14.04 y ROS Indigo. 
 
+En una terminal, teclee los siguientes comandos:
+\begin{lstlisting}
+$  sudo apt-get install ros-indigo-rosserial-arduino
+$  sudo apt-get install ros-indigo-rosserial
+\end{lstlisting}
+
+Una vez instaladas, es necesario copiar estas bibliotecas al \textit{sketchbook} del IDE de Arduino. La ubicación de esta carpeta se puede ver en el menú \texttt{File->Preferences}. Usualmente, el sketchbook está en \texttt{/home/user\_name/Arduino}. 
+
+Una vez ubicada la ruta del sketchbook, teclee los comandos:
+\begin{lstlisting}
+$  cd <sketchbook>/libraries
+$  rm -rf ros_lib
+$  rosrun rosserial_arduino make_libraries.py .
+\end{lstlisting}
 
 \subsection{Código de ejemplo}
 
-\subsection{Implementación de un publicador y un subscritor}
+Para verificar que las bibliotecas estén correctamente instaladas, escriba el siguiente código en el IDE de Arduino:
+\lstinputlisting[language=C++,numbers=left,numbersep=5pt]{counter/counter.ino}
 
-\textbf{Nota.} Se asume que el alumno ya tiene instalado Ubuntu 14.04 y ROS Indigo. 
+Compile el código y cárguelo a la tarjeta. Asegúrese de seleccionar correctamente la tarjeta (Arduino Uno) en el menú \texttt{Tools->Board} y el puerto serial, en el menú \texttt{Tools->Serial Port}. El puerto al que está conectado el Arduino se puede saber mediante el comando \texttt{ls /dev}; éste desplegará una lista con los dispositivos conectados. El arduino suele tener el nombre \texttt{ttyACM0}, o bien, alguno similar. 
+
+En una terminal, ejecute el \texttt{roscore} y en otra, el siguiente comando (asegúrese de escribir el nombre del puerto correcto):
+\begin{lstlisting}
+$  rosrun rosserial_python serial_node.py /dev/ttyACM0
+\end{lstlisting}
+
+En una tercera terminal, ejecute el comando
+\begin{lstlisting}
+$  rostopic echo /counter
+\end{lstlisting}
+
+Si todo se ejecutó correctamente, la terminal debería mostrar una salida similar a esta:
+\begin{verbatim}
+data: 4943
+---
+data: 4944
+---
+data: 4945
+---
+data: 4946
+---
+data: 4947
+---
+\end{verbatim}
+
+\subsection{Implementación de un subscriptor}
+\label{sec:subscriber}
+
+Escriba un programa para implementar en el Arduino un nodo que se suscriba a un tópico de nombre \texttt{/period\_ms}, de tipo entero, que determine el periodo de parpadeo, en milisegundos, del LED que ya está alambrado en la tarjeta. Por ejemplo, si se publica el tópico con un valor de 100, el LED debería parpadear a una frecuencia de 10 Hz. 
+
+En la página \url{http://wiki.ros.org/rosserial_arduino/Tutorials/Blink} se encuentra un ejemplo para implementar suscriptores. La opción \texttt{File->Examples->0.1 Basics->Blink} del IDE de Arduino despliega un ejemplo para hacer parpadear un LED. 
+
+\section{Evaluación}
+\begin{itemize}
+\item El programa a evaluar es el de la sección \ref{sec:subscriber}.
+\item Para probar el programa se publicará el tópico desde una terminal con el comando \texttt{rostopic pub}.
+\item El entero debe ser de cuando menos 16 bits para poder publicar periodos de varios segundos.
+\item El programa debe ser robusto ante periodos inválidos, por ejemplo, si se publica un dato negativo, la frencuencia debe permanecer con el valor anterior. 
+\item Recuerde que la práctica sólo se considera entregada si todo funciona correctamente. 
+\end{itemize}
 
 \end{document}
 
