@@ -1,4 +1,4 @@
-\documentclass[letterpaper,12pt]{article}
+\documentclass[a4paper,12pt]{article}
 \usepackage[spanish]{babel}
 \spanishdecimal{.}
 \selectlanguage{spanish}
@@ -27,11 +27,20 @@
 \maketitle
 \section*{Objetivos}
 \begin{itemize}
-\item Familiarizar al alumno con el uso del software de control de versiones \texttt{git}.
-\item Aprender a utilizar el software desarrollado en el Laboratorio de Bio-Robótica para la operación de robots móviles autónomos. 
+\item Construir ocho sensores de distancia con leds y fototransistores infrarrojos. 
+\item Implementar un nodo de ROS en la tarjeta Arduino Uno que publique los valores de dichos sensores.
+\item Utilizar una interfaz gráfica de usuario (GUI) para desplegar los valores de los sensores. 
 \end{itemize}
 
 \section{Introducción}
+Una de las habilidades básicas que debe tener un robot móvil autónomo es la de evadir obstáculos. Para ello, es necesario que el robot cuente con los sensores adecuados que le permitan determinar si hay algún objeto con el que pudiera colisionar. 
+
+Existen muchos sensores que pueden determinar la distancia a un objeto, la mayoría de ellos son sensores activos que emiten luz y la medición se realiza con base en el reflejo de la misma. Dispositivos como los \textit{laser range-finder} son ejemplos de sensores de distancia. Estos entregan la distancia en metros al objeto más cercano sobre la línea de vista de cada uno de los rayos de luz que emiten. 
+
+En esta práctica se construirán sensores de distancia binarios, esto es, sensores cuya medición es 0 si hay un objeto cercano, y 1, en caso contrario. Se considera que un objeto está cerca si la distancia es menor a un umbral que, en este caso, estará determinado por el diseño del circuito emisor-receptor infrarrojo. 
+
+\section{Desarrollo}
+
 
 \end{document}
 
