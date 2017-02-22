@@ -76,10 +76,11 @@ $  sudo apt-get install ros-indigo-rosserial
 Una vez instaladas, es necesario copiar estas bibliotecas al \textit{sketchbook} del IDE de Arduino. La ubicación de esta carpeta se puede ver en el menú \texttt{File->Preferences}. Usualmente, el sketchbook está en \texttt{/home/user\_name/Arduino}. 
 
 Una vez ubicada la ruta del sketchbook, teclee los comandos:
-\begin{lstlisting}
+\begin{lstlisting}[language=bash]
 $  cd <sketchbook>/libraries
 $  rm -rf ros_lib
 $  rosrun rosserial_arduino make_libraries.py .
+   # El punto al final indica que la carpeta actual es la carpeta de salida.
 \end{lstlisting}
 
 \subsection{Código de ejemplo}
