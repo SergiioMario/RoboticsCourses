@@ -1,4 +1,4 @@
-\documentclass[letterpaper,12pt]{article}
+\documentclass[a4paper,12pt]{article}
 \usepackage[spanish]{babel}
 \spanishdecimal{.}
 \selectlanguage{spanish}
@@ -27,11 +27,24 @@
 \maketitle
 \section*{Objetivos}
 \begin{itemize}
-\item Familiarizar al alumno con el uso del software de control de versiones \texttt{git}.
-\item Aprender a utilizar el software desarrollado en el Laboratorio de Bio-Robótica para la operación de robots móviles autónomos. 
+\item Construir dos sensores de luz empleando fotorresistores (LDR).
+\item Construir un sensor de batería empleando un divisor de voltaje.
+\item Utilizar el circuito TMP36 para sensar temperatura.
+\item Implementar un nodo de ROS en la tarjeta Arduino Uno que publique los valores  de dichos sensores. 
+\item Utilizar una interfaz gráfica de usuario (GUI) para desplegar los valores de los sensores. 
 \end{itemize}
 
 \section{Introducción}
+Un robot inteligente puede definirse como una máquina capaz de extraer información de su ambiente y usar el conocimiento de su mundo para moverse de forma segura y significativa con un propósito específico. Por ello, es necesario que un robot cuente con los sensores adecuados que le permitan obtener la información necesaria, ya sea de su estado interno o externo, para llevar a cabo su tarea. 
+
+Existen varias formas de clasificar los sensores. Una de ellas los separa en activos y pasivos. Los sensores activos son aquellos que necesitan emitir energía para realizar la medición, por ejemplo, un sensor láser (laser range-finder) requiere emitir luz para calcular la distancia a los obstáculos. Los sensores de distancia construidos en la práctica 4 son también un ejemplo de sensores activos. Sonares y cámaras RGB-D necesitan emitir sonido y luz, respectivamente, para realizar sus mediciones. Los sensores pasivos, por el contrario, no requieren emitir energía para medir. Micrófonos y cámaras RGB son ejemplos de este tipo de sensores. 
+
+Otra forma de clasificar los sensores es en propioceptivos y exteroceptivos. Los propioceptivos miden cantidades físicas relacionadas con el estado interno del robot, mientras que los exteroceptivos miden el estado externo. 
+
+En esta praćtica se construirán dos sensores de luz y uno de batería, todos ellos sensores pasivos. Los sensores de luz se clasifican como exteroceptivos y el de batería, como interoceptivo. También se utilizará un sensor de temperatura, que entra en la clasificación de pasivo y exteroceptivos. 
+
+Los resistores dependientes de luz (LDR del inglés \textit{light-dependent resistor}) o fotorresistores son componentes cuya resistencia disminuye con el aumento de intensidad de la luz que incide sobre ellos. Cuando incide una luz intensa sobre un LDR, su resistencia puede disminuir hasta el orden de decenas de ohms, mientras que en la oscuridad, su resistencia puede aumentar hasta el orden de megaohms. Si un LDR se coloca en serie con una resistencia fija, se puede formar un divisor de voltaje cuya salida es función de la intensidad de la luz. 
+
 
 \end{document}
 
