@@ -4,6 +4,7 @@
 \selectlanguage{spanish}
 \usepackage[spanish,onelanguage,ruled]{algorithm2e}
 \usepackage[utf8]{inputenc}
+\usepackage{siunitx}
 \usepackage{graphicx}
 \usepackage{caption}
 \usepackage{subcaption}
@@ -35,16 +36,69 @@
 \end{itemize}
 
 \section{Introducción}
-Un robot inteligente puede definirse como una máquina capaz de extraer información de su ambiente y usar el conocimiento de su mundo para moverse de forma segura y significativa con un propósito específico. Por ello, es necesario que un robot cuente con los sensores adecuados que le permitan obtener la información necesaria, ya sea de su estado interno o externo, para llevar a cabo su tarea. 
+Un robot inteligente puede definirse como una máquina capaz de extraer información de su ambiente y usar el conocimiento de su mundo para moverse de forma segura y significativa con un propósito específico. Por ello, un robot debe contar con los sensores adecuados que le permitan obtener la información necesaria, ya sea de su estado interno o externo, para llevar a cabo su tarea. 
 
 Existen varias formas de clasificar los sensores. Una de ellas los separa en activos y pasivos. Los sensores activos son aquellos que necesitan emitir energía para realizar la medición, por ejemplo, un sensor láser (laser range-finder) requiere emitir luz para calcular la distancia a los obstáculos. Los sensores de distancia construidos en la práctica 4 son también un ejemplo de sensores activos. Sonares y cámaras RGB-D necesitan emitir sonido y luz, respectivamente, para realizar sus mediciones. Los sensores pasivos, por el contrario, no requieren emitir energía para medir. Micrófonos y cámaras RGB son ejemplos de este tipo de sensores. 
 
-Otra forma de clasificar los sensores es en propioceptivos y exteroceptivos. Los propioceptivos miden cantidades físicas relacionadas con el estado interno del robot, mientras que los exteroceptivos miden el estado externo. 
+Otra forma de clasificar los sensores es en propioceptivos y exteroceptivos. Los propioceptivos miden cantidades físicas relacionadas con el estado interno del robot, mientras que los exteroceptivos miden el estado externo. Encoders y sensores de batería son ejemplos de sensores propioceptivos. Cámaras, micrófonos y sensores láser son ejemplos de sensores exteroceptivos. 
 
-En esta praćtica se construirán dos sensores de luz y uno de batería, todos ellos sensores pasivos. Los sensores de luz se clasifican como exteroceptivos y el de batería, como interoceptivo. También se utilizará un sensor de temperatura, que entra en la clasificación de pasivo y exteroceptivos. 
+Los resistores dependientes de luz (LDR, del inglés \textit{light-dependent resistor}) o fotorresistores son componentes cuya resistencia disminuye con el aumento de intensidad de la luz que incide sobre ellos. Cuando incide una luz intensa sobre un LDR, su resistencia puede disminuir hasta el orden de decenas de ohms, mientras que en la oscuridad, su resistencia puede aumentar hasta el orden de megaohms. Si un LDR se coloca en serie con una resistencia fija, se puede formar un divisor de voltaje cuya salida es función de la intensidad de la luz. 
 
-Los resistores dependientes de luz (LDR del inglés \textit{light-dependent resistor}) o fotorresistores son componentes cuya resistencia disminuye con el aumento de intensidad de la luz que incide sobre ellos. Cuando incide una luz intensa sobre un LDR, su resistencia puede disminuir hasta el orden de decenas de ohms, mientras que en la oscuridad, su resistencia puede aumentar hasta el orden de megaohms. Si un LDR se coloca en serie con una resistencia fija, se puede formar un divisor de voltaje cuya salida es función de la intensidad de la luz. 
+Para medir el nivel de batería del robot, bastaría con leer su voltaje mediante un convertidor analógico-digital, sin embargo, dado que el Arduino Uno sólo puede convertir voltajes entre 0V y 5V y la batería del robot es de 7.4V nominales (con un máximo de 8.4V), es necesario utilizar un divisor de voltaje que reduzca la señal de la batería a la mitad. 
 
+El TMP36 es un sensor de temperatura de precisión y bajo voltaje cuya salida es proporcional a la temperatura en grados Celsius. Este sensor es muy fácil de usar puesto que no requiere calibración y el voltaje de salida puede ser convertido fácilmente a temperatura utilizando el factor de escala de 10 mV/\si{\degree}C.
+
+En esta praćtica se construirán dos sensores de luz y uno de batería, todos ellos sensores pasivos. Los sensores de luz se clasifican como exteroceptivos y el de batería, como interoceptivo. También se utilizará el sensor de temperatura TMP36, que entra en la clasificación de pasivo y exteroceptivo. 
+
+\section{Desarrollo}
+\subsection{Sensores de luz}
+Construya dos sensores de luz utilizando el circuito que se muestra en la figura ...
+
+La idea de estos sensores es medir diferencias de luz a cada lado del robot de modo que puedan implementarse fototaxias (ver práctica 10), por lo que uno de los sensores debe colocarse al lado izquierdo del robot y el otro, al lado derecho. 
+
+\subsection{Sensor de batería}
+Construya un divisor de voltaje cuya salida sea la mitad del voltaje de entrada. En el circuito de la figura ASDFASDF el voltaje de salida $V_o$ está dado por
+\[V_o = \ddfrac{R2}{R1 + R2}V_i\]
+por lo que, si las resistencias R1 y R2 son iguales, el voltaje de salida $V_o$ será la mitad del voltaje de entrada $V_i$. Teóricamente, R1 y R2 podrían tomar cualquier valor siempre y cuando sean iguales, sin embargo, dado que dicha señal será conectada a un convertidor ADC del Arduino Uno, es necesario tomar en cuenta la impedancia de entrada de dicho convertidor. 
+
+Considere el circuito de la figura ASDFAF. La señal de salida $V_o$ está dada por
+\[V_o = \ddfrac{\left(R2^{-1} + R_{ADC}^{-1}\right)^{-1}}{R1 + \left(R2^{-1} + R_{ADC}^{-1}\right)^{-1}}V_i\]
+Dado que la resistencia R2 está conectada en paralelo con la impedancia de entrada $\textrm{R}_{ADC}$ del convertidor analógico-digital, entre más pequeñas sean R1 y R2, menor será la alteración provocada por $\textrm{R}_{ADC}$, sin embargo, entre más pequeñas sean R1 y R2, mayor será el consumo de corriente. Por lo tanto, R1 y R2 se deben seleccionar equilibrando exactitud y consumo de corriente. 
+
+\subsection{Conexión de los sensores al Arduino Uno}
+Conecte la salida de los sensores de luz izquierdo y derecho a los pines analógicos de entrada A0 y A1 del Arduino Uno.  Conecte la salida del sensor de batería al pin A2. Alimente con 5V el circuito TMP36 y conecte su salida al pin A3. La razón para usar estos pines es que los demás, digitales y analógicos, serán usados para otros dispositivos, como se muestra en la tabla \ref{tab:PinUsage}.
+
+\begin{table}
+\centering
+\begin{tabular}{rll}
+\hline
+Pin & Dispositivo conectado & Descripción\\
+\hline
+0 & Serial Rx  & Comunicación serial con la RaspberryPi\\
+1 & Serial Tx  & Comunicación serial con la RaspberryPi\\
+2 & Sensor SD0 & Sensor de distancia binario\\
+3 & Motor MA1  & Señal PWM para control del motor izquierdo\\
+4 & Sensor SD1 & Sensor de distancia binario\\
+5 & Motor MA2  & Señal PWM para control del motor izquierdo\\
+6 & Motor MB1  & Señal PWM para control del motor derecho\\
+7 & Sensor SD2 & Sensor de distancia binario\\
+8 & Sensor SD3 & Sensor de distancia binario\\
+9 & Motor MB2  & Señal PWM para control del motor derecho\\
+10& Sensor SD4 & Sensor de distancia binario\\
+11& Sensor SD5 & Sensor de distancia binario\\
+12& Sensor SD6 & Sensor de distancia binario\\
+13& Sensor SD7 & Sensor de distancia binario\\
+A0& Sensor SLL & Sensor de luz izquierdo\\
+A1& Sensor SLR & Sensor de luz derecho\\
+A2& Sensor SB  & Sensor de batería\\
+A3& Sensor ST  & Sensor de temperatura\\
+A4& I2C SCL    & Comunicación con el acelerómetro\\
+A5& I2C SDA    & Comunicación con el acelerómetro\\
+\hline
+\end{tabular}
+\caption{Uso de los pines de la tarjeta Arduino Uno}
+\label{tab:PinUsage}
+\end{table}
 
 \end{document}
 
