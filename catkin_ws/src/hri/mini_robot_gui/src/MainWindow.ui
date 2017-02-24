@@ -150,7 +150,7 @@ QRadioButton::indicator{
      </rect>
     </property>
     <property name="text">
-     <string>Battery: 7.4 V</string>
+     <string>Batt:  7.40 V</string>
     </property>
    </widget>
    <widget class="QLabel" name="lblTemp">
@@ -182,10 +182,10 @@ QRadioButton::indicator{
      <enum>QLCDNumber::Flat</enum>
     </property>
     <property name="value" stdset="0">
-     <double>23.500000000000000</double>
+     <double>23.567889999999998</double>
     </property>
    </widget>
-   <widget class="QProgressBar" name="progressBar">
+   <widget class="QProgressBar" name="pbBatt">
     <property name="geometry">
      <rect>
       <x>330</x>

@@ -52,18 +52,55 @@ En esta praćtica se construirán dos sensores de luz y uno de batería, todos e
 
 \section{Desarrollo}
 \subsection{Sensores de luz}
-Construya dos sensores de luz utilizando el circuito que se muestra en la figura ...
+Construya dos sensores de luz utilizando el circuito que se muestra en la figura \ref{fig:LDR}. En este circuito, la salida $V_o$ está dada por
+\[V_o = \frac{R_1}{R_{LDR} + R_1}V_{cc}\]
+donde $R_{LDR}$ es la resistencia del LDR, que cambia con respecto a la intensidad de la luz y $R_1$ es una resistencia de valor fijo. Como se observa en la figura \ref{fig:LDRVo}, la salida no es lineal con respecto a la entrada, por lo que si se desea obtener una medida de la intensidad de luz a partir del voltaje medido, es necesario realizar una corrección no lineal. Para las tareas que desempeñará el robot no es necesaria dicha corrección. 
+\begin{figure}
+  \centering
+  \begin{subfigure}[b]{0.43\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{Figures/LDR.eps}
+    \caption{Divisor de voltaje.}
+    \label{fig:LDR}
+  \end{subfigure}
+  \qquad\qquad
+  \begin{subfigure}[b]{0.43\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{Figures/LDR_Vo.eps}
+    \caption{Voltaje de salida.}
+    \label{fig:LDRVo}
+  \end{subfigure}
+\caption{Sensores de luz basados en LDR.}
+\end{figure}
 
 La idea de estos sensores es medir diferencias de luz a cada lado del robot de modo que puedan implementarse fototaxias (ver práctica 10), por lo que uno de los sensores debe colocarse al lado izquierdo del robot y el otro, al lado derecho. 
 
 \subsection{Sensor de batería}
-Construya un divisor de voltaje cuya salida sea la mitad del voltaje de entrada. En el circuito de la figura ASDFASDF el voltaje de salida $V_o$ está dado por
+Construya un divisor de voltaje cuya salida sea la mitad del voltaje de entrada. En el circuito de la figura \ref{fig:VoltDiv} el voltaje de salida $V_o$ está dado por
 \[V_o = \ddfrac{R2}{R1 + R2}V_i\]
-por lo que, si las resistencias R1 y R2 son iguales, el voltaje de salida $V_o$ será la mitad del voltaje de entrada $V_i$. Teóricamente, R1 y R2 podrían tomar cualquier valor siempre y cuando sean iguales, sin embargo, dado que dicha señal será conectada a un convertidor ADC del Arduino Uno, es necesario tomar en cuenta la impedancia de entrada de dicho convertidor. 
+por lo que, si las resistencias R1 y R2 son iguales, el voltaje de salida $V_o$ será la mitad del voltaje de entrada $V_i$ (que en este caso será el voltaje de la batería). Teóricamente, R1 y R2 podrían tomar cualquier valor siempre y cuando sean iguales, sin embargo, dado que dicha señal será conectada a un convertidor ADC del Arduino Uno, es necesario tomar en cuenta la impedancia de entrada de dicho convertidor. 
 
-Considere el circuito de la figura ASDFAF. La señal de salida $V_o$ está dada por
+Considere el circuito de la figura \ref{fig:VoltDivADC}. La señal de salida $V_o$ está dada por
 \[V_o = \ddfrac{\left(R2^{-1} + R_{ADC}^{-1}\right)^{-1}}{R1 + \left(R2^{-1} + R_{ADC}^{-1}\right)^{-1}}V_i\]
 Dado que la resistencia R2 está conectada en paralelo con la impedancia de entrada $\textrm{R}_{ADC}$ del convertidor analógico-digital, entre más pequeñas sean R1 y R2, menor será la alteración provocada por $\textrm{R}_{ADC}$, sin embargo, entre más pequeñas sean R1 y R2, mayor será el consumo de corriente. Por lo tanto, R1 y R2 se deben seleccionar equilibrando exactitud y consumo de corriente. 
+
+\begin{figure}
+  \centering
+  \begin{subfigure}[b]{0.43\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{Figures/VoltDiv.eps}
+    \caption{Divisor de voltaje para reducir a la mitad el voltaje de entrada.}
+    \label{fig:VoltDiv}
+  \end{subfigure}
+  \qquad\qquad
+  \begin{subfigure}[b]{0.43\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{Figures/VoltDivADC.eps}
+    \caption{Divisor considerando la impedancia del convertidor analógico-digital.}
+    \label{fig:VoltDivADC}
+  \end{subfigure}
+\caption{Circuito para sensar batería.}
+\end{figure}
 
 \subsection{Conexión de los sensores al Arduino Uno}
 Conecte la salida de los sensores de luz izquierdo y derecho a los pines analógicos de entrada A0 y A1 del Arduino Uno.  Conecte la salida del sensor de batería al pin A2. Alimente con 5V el circuito TMP36 y conecte su salida al pin A3. La razón para usar estos pines es que los demás, digitales y analógicos, serán usados para otros dispositivos, como se muestra en la tabla \ref{tab:PinUsage}.
@@ -99,6 +136,42 @@ A5& I2C SDA    & Comunicación con el acelerómetro\\
 \caption{Uso de los pines de la tarjeta Arduino Uno}
 \label{tab:PinUsage}
 \end{table}
+
+\subsection{Nodo que publica los valores de los sensores}
+Implemente un nodo en la tarjeta Arduino Uno (siguiendo un procedimiento similar a la práctica 3) que publique un tópico de tipo \texttt{std\_msgs::Float32MultiArray} con el nombre \texttt{/minirobot/hardware/sensors} que contenga las lecturas de los sensores de luz, batería y temperatura, además de los sensores de distancia construidos en la práctica 4. El tamaño del arreglo de flotantes contenido en el mensaje \textbf{debe ser 15}. Recuerde que el tamaño del arreglo se especifica en la variable \texttt{data\_length} del mensaje a enviar. Es importante que \textbf{el tamaño del arreglo sea 15} para el correcto funcionamiento de la GUI donde se desplegarán los valores de los sensores. 
+
+El arreglo de flotantes del mensaje a publicar debe contener las lecturas de los sensores en el siguiente orden (ver tabla \ref{tab:PinUsage} para los nombres de los sensores):
+\begin{verbatim}
+  {SD0  SD1  SD2  SD3  SD4  SD5  SD6  SD7   0  0  0   SLL  SLR  ST  SB}
+\end{verbatim}
+
+De los quince datos, los primeros ocho corresponden a los sensores de distancia, los siguietes tres datos deben ser cero (se utilizarán en la siguiente práctica para la lectura del acelerómetro) y los últimos cuatro deben contener las lecturas de los sensores de luz izquierdo y derecho, sensor de temperatura y sensor de batería, en ese orden. Por ejemplo, suponga que los sensores SD0, SD2 y SD3 detectan objetos cercanos, los voltajes de los sensores de luz son 3.5V y 4.5V, la batería tiene un nivel de 8.0V y el sensor de temperatura entrega una salida de 0.8V. Dado que el Arduino Uno tiene un ADC de 10 bits alimentado a 5V, el contenido del arreglo debería ser (recuerde que la batería pasa por un divisor de voltaje):
+\begin{verbatim}
+  {0  1  0  0  1  1  1  1  0  0  0  717  922  164  819}
+\end{verbatim}
+
+con lo que la GUI desplegará algo como lo que se muestra en la figura \ref{fig:Example}. Para correr la GUI y visualizar los datos, en una nueva terminal, ejecute el comando
+
+\begin{lstlisting}[language=bash]
+$  rosrun mini_robot_gui mini_robot_gui_node
+\end{lstlisting}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.7\textwidth]{Figures/SensorExample.png}
+  \caption{Ejemplo de lectura de sensores. SD0, SD2 y SD3 detectan objetos cercanos. Sensores de luz con salidas de 3.5V y 4.5V, sensor de temperatura entrega 0.8V y batería con 8.0V.}
+  \label{fig:Example}
+\end{figure}
+
+\section{Evaluación}
+\begin{itemize}
+\item Los cuatro sensores (dos de luz, batería y temperatura), junto con los ocho de distancia de la práctica 4, deben funcionar correctamente.
+\item Todos los sensores deben estar montados en el robot.
+\item El correcto funcionamiento de todos los sensores se verificará con la GUI.
+\item Los sensores de luz deben mostrar variaciones de cuando menos 2V ante dos condiciones: tapados con las manos (condición de obscuridad) y descubiertos (condición luminosa).
+\item El sensor de batería debe tener valores ``razonables'', es decir, puesto que se usará una batería LiPo de dos celdas, el voltaje leído no debería ser menor a 7.0V ni mayor a 8.4V.
+\item El sensor de temperatura también debe mostrar valores ``razonables''. La GUI ya hace la transformación a \si{\degree}C con base en las especificaciones del TMP36, por lo que se esperan lecturas cercanas a la temperatura ambiente. 
+\end{itemize}
 
 \end{document}
 

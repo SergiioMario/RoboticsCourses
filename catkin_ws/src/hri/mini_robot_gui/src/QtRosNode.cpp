@@ -79,8 +79,9 @@ void QtRosNode::callbackSensors(const std_msgs::Float32MultiArray::ConstPtr& msg
         sensorAccelerometer[i-8] = msg->data[i];
     sensorLightL = msg->data[11];
     sensorLightR = msg->data[12];
-    sensorTemp   = msg->data[13];
-    sensorBatt   = msg->data[14];
+    sensorTemp   = msg->data[13]*500.0/1024.0 - 50; //In TMP36 we have 10 mV/°C, with Vout = 750 mV for T=25°C
+    sensorBatt   = msg->data[14]/102.4; //from the 10-bit ADC, 1024 = 10.0 V, since ADC in arduino is powered with 5V
+                                        //and signal comes from a 1/2 voltage divisor
 
     accelMvnAvg = accelMvnAvgQueue[0];
     for(int i=1; i <accelMvnAvgQueue.size(); i++)

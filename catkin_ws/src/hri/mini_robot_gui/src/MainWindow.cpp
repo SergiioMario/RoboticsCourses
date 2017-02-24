@@ -94,6 +94,9 @@ void MainWindow::updateGraphicsReceived()
     giAccelY->setLine(67,62, 67+y1, 62);
     giAccelZ->setLine(67,62, 67, 62+z1);
 
+    ui->lblBatt->setText("Batt:  " + QString::number(qtRosNode->sensorBatt, 'f', 2));
+    ui->pbBatt->setValue((int)((qtRosNode->sensorBatt - 7.15)/1.25*100));
+    ui->lcdTemp->display(qtRosNode->sensorTemp);
     ui->lblLightSensorL->setText("L: " + QString::number((int)(qtRosNode->sensorLightL)));
     ui->lblLightSensorR->setText("R: " + QString::number((int)(qtRosNode->sensorLightR)));
     ui->lblAccelMvnAvg->setText("Accel Mvn Avg: " + QString::number(qtRosNode->accelMvnAvg, 'f', 5));
