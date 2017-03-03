@@ -19,7 +19,7 @@
 \lstset{backgroundcolor=\color{backcolour}, basicstyle=\footnotesize}
 \lstset{xleftmargin=1cm, xrightmargin=1cm, breaklines=true}
 
-\title{Práctica 6 \\ Lectura de un acelerómetro con la tarjeta arduino y cálculo de posición}
+\title{Práctica 6 \\ Lectura de un acelerómetro con la tarjeta arduino e implementación de un filtro pasa-bandas}
 \author{Laboratorio de Bio-Robótica}
 \date{Construcción de Robots Móviles}
 \begin{document}
@@ -27,11 +27,17 @@
 \maketitle
 \section*{Objetivos}
 \begin{itemize}
-\item Familiarizar al alumno con el uso del software de control de versiones \texttt{git}.
-\item Aprender a utilizar el software desarrollado en el Laboratorio de Bio-Robótica para la operación de robots móviles autónomos. 
+\item Utilizar el circuito MMA8452Q para medir la aceleración del robot móvil. 
+\item Comunicar la tarjeta Arduino Uno con el acelerómetro mediante I2C.
+\item Implementar un nodo de ROS en la tarjeta Arduino Uno que publique los valores del acelerómetro. 
+\item Utilizar una interfaz gráfica de usuario (GUI) para desplegar los valores del acelerómetro. 
+\item Implementar un filtro pasa-bandas para acondicionar la señal del acelerómetro.
 \end{itemize}
 
 \section{Introducción}
+Dependiendo del nivel de complejidad de la tarea que se pretenda resolver, un robot puede o no necesitar conocer su posición con respecto a algún sistema de referencia. Si la tarea no requiere de un alto nivel cognitivo, el comportamiento inteligente se puede lograr mediante la implementación de varios comportamientos y en general no es necesario conocer la posición del robot. Por el contrario, si la tarea implica la pleneación de rutas o el seguimiento de trayectorias, entonces sí es necesaria la posición del robot. 
+
+El problema de determinar la posición del robot se conoce como localización y consiste en la obtención de la configuración del robot a partir de un mapa o alguna representación del ambiente y un conjunto de lecturas de los sensores. La odometría se refiere al cálculo de posición únicamente mediante la integración de velocidades o aceleraciones y se utiliza cuando no se dispone de un mapa o de los sensores adecuados. 
 
 \end{document}
 
