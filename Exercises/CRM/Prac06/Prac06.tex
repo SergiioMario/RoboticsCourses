@@ -39,6 +39,20 @@ Dependiendo del nivel de complejidad de la tarea que se pretenda resolver, un ro
 
 El problema de determinar la posición del robot se conoce como localización y consiste en la obtención de la configuración del robot a partir de un mapa o alguna representación del ambiente y un conjunto de lecturas de los sensores. La odometría se refiere al cálculo de posición únicamente mediante la integración de velocidades o aceleraciones y se utiliza cuando no se dispone de un mapa o de los sensores adecuados. 
 
+Cuando no se conoce la expresión analítica de una función se pueden utilizar métodos numéricos de integración. Uno de los más sencillos es el método del trapecio, en el cual la función es aproximada por una línea recta en un intervalo $[a,b]$ y la integral se aproxima con el área bajo la curva del trapecio que se forma. La señal que se desea integrar es la aceleración medida por el circuito MMA8452Q. Considere la aceleración en función del tiempo $a(t)$, cuya integral se desea obtener en el intervalo $[t_1,t_2]$. Por el método del trapecio se asume que
+\[a(t) \approx  a(t_1) + \frac{a(t_2) - a(t_1)}{t_2 - t_1}(t - t_1)\]
+por lo que, la integral, es decir, la velocidad en el intervalo $[t_1,t_2]$, se puede obtener con
+\[v(t) = \int_{t_1}^{t_2} a(t)dt \approx \frac{a(t_1) + a(t_2)}{2}(t_2 - t_1)\]
+Puesto que los datos del acelerómetro se adquieren a una frecuencia constante, la diferencia $t_1 - t_2$ es constante y equivale al periodo de muestreo $\Delta t$. Reescribiendo la ecuación con índices enteros del tiempo $k$, la velocidad se puede obtener mediante:
+\begin{equation}
+v[k] = v[k-1] + \frac{a[k] + a[k-1]}{2}\Delta t
+\end{equation}
+
+El circuito MMA8452Q es un acelerómetro de tres ejes y, a diferencia de una IMU (unidad de medición inercial), no cuenta con el hardware necesario para determinar su orientación. Las mediciones de aceleración siempre están alteradas por la fuerza de gravedad, es 
+
+*El problema de la componente de gravedad, el ruido, para eso se filtra
+*En el desarrollo, aclarar que se deben mandar valores en G, no en enteros.
+
 \end{document}
 
 %%% Local Variables:
