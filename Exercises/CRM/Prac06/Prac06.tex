@@ -19,7 +19,7 @@
 \lstset{backgroundcolor=\color{backcolour}, basicstyle=\footnotesize}
 \lstset{xleftmargin=1cm, xrightmargin=1cm, breaklines=true}
 
-\title{Práctica 6 \\ Lectura de un acelerómetro con la tarjeta arduino e implementación de un filtro pasa-bandas}
+\title{Práctica 6 \\ Lectura de un acelerómetro con la tarjeta Arduino y cálculo de velocidad}
 \author{Laboratorio de Bio-Robótica}
 \date{Construcción de Robots Móviles}
 \begin{document}
@@ -32,6 +32,7 @@
 \item Implementar un nodo de ROS en la tarjeta Arduino Uno que publique los valores del acelerómetro. 
 \item Utilizar una interfaz gráfica de usuario (GUI) para desplegar los valores del acelerómetro. 
 \item Implementar un filtro pasa-bandas para acondicionar la señal del acelerómetro.
+\item Calcular una señal de velocidad mediante integración numérica. 
 \end{itemize}
 
 \section{Introducción}
@@ -41,16 +42,90 @@ El problema de determinar la posición del robot se conoce como localización y 
 
 Cuando no se conoce la expresión analítica de una función se pueden utilizar métodos numéricos de integración. Uno de los más sencillos es el método del trapecio, en el cual la función es aproximada por una línea recta en un intervalo $[a,b]$ y la integral se aproxima con el área bajo la curva del trapecio que se forma. La señal que se desea integrar es la aceleración medida por el circuito MMA8452Q. Considere la aceleración en función del tiempo $a(t)$, cuya integral se desea obtener en el intervalo $[t_1,t_2]$. Por el método del trapecio se asume que
 \[a(t) \approx  a(t_1) + \frac{a(t_2) - a(t_1)}{t_2 - t_1}(t - t_1)\]
-por lo que, la integral, es decir, la velocidad en el intervalo $[t_1,t_2]$, se puede obtener con
+por lo que la integral, es decir, la velocidad en el intervalo $[t_1,t_2]$, se puede obtener con
 \[v(t) = \int_{t_1}^{t_2} a(t)dt \approx \frac{a(t_1) + a(t_2)}{2}(t_2 - t_1)\]
-Puesto que los datos del acelerómetro se adquieren a una frecuencia constante, la diferencia $t_1 - t_2$ es constante y equivale al periodo de muestreo $\Delta t$. Reescribiendo la ecuación con índices enteros del tiempo $k$, la velocidad se puede obtener mediante:
+Puesto que los datos del acelerómetro se adquieren a una frecuencia constante, la diferencia $t_1 - t_2$ es constante y equivale al periodo de muestreo $\Delta t$. Reescribiendo la ecuación en términos discretos, la velocidad en el tiempo $k$ se puede obtener mediante:
 \begin{equation}
 v[k] = v[k-1] + \frac{a[k] + a[k-1]}{2}\Delta t
+\label{eq:Integral}
 \end{equation}
 
-El circuito MMA8452Q es un acelerómetro de tres ejes y, a diferencia de una IMU (unidad de medición inercial), no cuenta con el hardware necesario para determinar su orientación. Las mediciones de aceleración siempre están alteradas por la fuerza de gravedad, es 
+El circuito MMA8452Q es un acelerómetro de tres ejes y, a diferencia de una IMU (unidad de medición inercial), no cuenta con el hardware necesario para determinar su orientación. Las mediciones de aceleración siempre están alteradas por la fuerza de gravedad, es decir, las lecturas del acelerómetro son la suma de los efectos gravitatorios más la aceleración real del dispositivo. El vector de aceleraciones medidas en los tres ejes se puede modelar como
+\begin{equation}
+  \label{eq:accelModel}
+  a_m = a_b - R_I^b \left[\begin{tabular}{c}0\\0\\g \end{tabular}\right]
+\end{equation}
+donde $a_m \in \mathbb{R}^3$ es el vector de aceleraciones medidas en los tres ejes XYZ, $a_b \in \mathbb{R}^3$ es el vector de aceleración real del sensor, $g$ es la aceleración de la gravedad y $R_I^b \in \mathbb{R}^{3\times 3}$ es la matriz de rotación que representa la orientación del sensor con respecto al sistema de referencia inercial. 
 
-*El problema de la componente de gravedad, el ruido, para eso se filtra
+De la ecuación \ref{eq:accelModel} se puede observar que las mediciones del acelerómetro son altamente sensibles ante errores en la matriz de rotación $R_I^b$. Dado que el circuito MMA8452Q no cuenta con el hardware necesario para medir orientación, por lo que no se puede calcular con exactitud la matriz $R_I^b$, resultaría muy complicado obtener mediciones de posición a partir de la doble integración de la aceleración. Sin embargo, si se sabe que el robot sólo se moverá en el plano XY (perpendicular al vector de gravedad) y que los cambios en la aceleración en general serán lentos (por las características de los motores), se puede acondicionar la señal mediante filtros digitales para obtener una mejor estimación de la velocidad y posición. 
+
+Un filtro digital es un sistema discreto cuyo propósito es reducir o mejorar ciertas componentes de una señal discreta. La reducción o amplificación generalmente se hace en términos de la frecuencia de la señal. En general, un filtro puede representarse por su función de transferencia en el dominio $Z$
+\[H(z) = \ddfrac{B(z)}{A(z)} = \ddfrac{\sum_{k=0}^N b_k z^{-k}}{1 + \sum_{k=1}^M a_k z^{-k}}\]
+o por su ecuación en diferencias equivalente
+\begin{equation}
+  \label{eq:DiffEq}
+y[n] + a_1 y[n-1] + \dots +a_M y[n-M] = b_0 x[n] + b_1 x[n-1] + \dots + b_N x[n-N]
+\end{equation}
+donde $x[n]$ es la señal discreta de entrada, $y[n]$ es la señal discreta de salida y $max(N,M)$ determina el orden del filtro, que se puede entender como el número de valores pasados que es necesario conocer para determinar la salida actual. Los coeficientes $a_k$ y $b_k$ determinarán el tipo de filtro, basa-bajas, pasa-altas, basa-banda o supresor de banda, así como la respuesta en frecuencia. Existen varias formas de calcular $a_k$ y $b_k$ para obtener el filro deseado. Una buena opción es calcular los coeficientes de modo que el filtro sea de tipo Butterworth, una clase de filtros cuya respuesta en frecuencia es casi plana en la banda de paso. 
+
+En esta práctica se implementará un nodo en la tarjeta Arduino que se comunique con el circuito MMA8452Q para obtener mediciones de aceleración. Esta señal se acondicionará mediante un filtro pasa-bajas y luego se integrará para obtener una señal de velocidad. 
+
+\section{Desarrollo}
+\subsection{Conexión del circuito MMA8452Q al Arduino}
+Para su fácil manejo, el circuito MMA8452Q ya viene alambrado en un circuito impreso como el que se muestra en la figura \ref{fig:accel}. En esta práctica únicamente se utilizan los pines \texttt{3.3V, SDA, SCL} y \texttt{GND}. 
+
+Conecte cada uno de estos pines a los pines del mismo nombre en la tarjeta Arduino Uno. 
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.3\textwidth]{Figures/accelerometer.jpg}
+  \caption{Circuito MMA8452Q alambrado en un PCB.}
+  \label{fig:accel}
+\end{figure}
+
+Asegúrese de \textbf{alimentar correctamente el circuito}, de lo contrario, el circuito podría dañarse permanentemente. Es muy recomendable que el sensor se coloque \textbf{horizontal y alineado} con los ejes del robot. 
+
+\subsection{Nodo en el Arduino que publica los valores de aceleración}
+El circuito MMA8452Q utiliza comunicación I2C para enviar las lecturas por lo que tendría que programarse este protocolo en el nodo del Arduino, sin embargo, el fabricante proporciona una biblioteca para Arduino con la que se facilita bastante la comunicación con este circuito. 
+
+Descarge las bibliotecas para Arduino de la dirección \url{https://cdn.sparkfun.com/assets/learn_tutorials/2/4/9/SFE_MMA8452Q-library.zip}. 
+
+Implemente un nodo en la tarjeta Arduino Uno (siguiendo un procedimiento similar a la práctica 3) que publique un tópico de tipo \texttt{std\_msgs::Float32MultiArray} con el nombre \texttt{/minirobot/hardware/sensors} que contenga las lecturas del acelerómetro, además de todos los sensores construidos en las prácticas 4 y 5. El tamaño del arreglo de flotantes contenido en el mensaje \textbf{debe ser 15} y las lecturas de los sensores deben estar en el siguiente orden: 
+
+\begin{verbatim}
+  {SD0  SD1  SD2  SD3  SD4  SD5  SD6  SD7   AccelX  AccelY  AccelZ   SLL  SLR  ST  SB}
+\end{verbatim}
+
+De los quince datos, los primeros ocho corresponden a los sensores de distancia, los siguietes tres datos deben ser cero (se utilizarán en la siguiente práctica para la lectura del acelerómetro) y los últimos cuatro deben contener las lecturas de los sensores de luz izquierdo y derecho, sensor de temperatura y sensor de batería, en ese orden. Por ejemplo, suponga que los sensores SD0, SD2 y SD3 detectan objetos cercanos, los voltajes de los sensores de luz son 3.5V y 4.5V, la batería tiene un nivel de 8.0V y el sensor de temperatura entrega una salida de 0.8V. Dado que el Arduino Uno tiene un ADC de 10 bits alimentado a 5V, el contenido del arreglo debería ser (recuerde que la batería pasa por un divisor de voltaje):
+\begin{verbatim}
+  {0  1  0  0  1  1  1  1  0  0  0  717  922  164  819}
+\end{verbatim}
+
+con lo que la GUI desplegará algo como lo que se muestra en la figura \ref{fig:Example}. Para correr la GUI y visualizar los datos, en una nueva terminal, ejecute el comando
+
+\begin{lstlisting}[language=bash]
+$  rosrun mini_robot_gui mini_robot_gui_node
+\end{lstlisting}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.7\textwidth]{Figures/SensorExample.png}
+  \caption{Ejemplo de lectura de sensores. SD0, SD2 y SD3 detectan objetos cercanos. Sensores de luz con salidas de 3.5V y 4.5V, sensor de temperatura entrega 0.8V y batería con 8.0V.}
+  \label{fig:Example}
+\end{figure}
+
+
+*Instalar la librería
+*Modificar el baudrate
+*Publicar el tópico en el orden correcto. 
+
+\subsection{Nodo para filtrado y cálculo de velocidad}
+
+*Suscribirse a las lecturas de los sensores
+*Utilizar un butterworth pasabandas de matlab
+*Integrar usando el trapecio
+*publicar la velocidad en /minirobot/estimated\_speed
+
+
 *En el desarrollo, aclarar que se deben mandar valores en G, no en enteros.
 
 \end{document}
