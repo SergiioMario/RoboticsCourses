@@ -60,7 +60,10 @@ donde $a_m \in \mathbb{R}^3$ es el vector de aceleraciones medidas en los tres e
 De la ecuación \ref{eq:accelModel} se puede observar que las mediciones del acelerómetro son altamente sensibles ante errores en la matriz de rotación $R_I^b$. Dado que el circuito MMA8452Q no cuenta con el hardware necesario para medir orientación, por lo que no se puede calcular con exactitud la matriz $R_I^b$, resultaría muy complicado obtener mediciones de posición a partir de la doble integración de la aceleración. Sin embargo, si se sabe que el robot sólo se moverá en el plano XY (perpendicular al vector de gravedad) y que los cambios en la aceleración en general serán lentos (por las características de los motores), se puede acondicionar la señal mediante filtros digitales para obtener una mejor estimación de la velocidad y posición. 
 
 Un filtro digital es un sistema discreto cuyo propósito es reducir o mejorar ciertas componentes de una señal discreta. La reducción o amplificación generalmente se hace en términos de la frecuencia de la señal. En general, un filtro puede representarse por su función de transferencia en el dominio $Z$
-\[H(z) = \ddfrac{B(z)}{A(z)} = \ddfrac{\sum_{k=0}^N b_k z^{-k}}{1 + \sum_{k=1}^M a_k z^{-k}}\]
+\begin{equation}
+  \label{eq:Transfer}
+H(z) = \ddfrac{B(z)}{A(z)} = \ddfrac{\sum_{k=0}^N b_k z^{-k}}{1 + \sum_{k=1}^M a_k z^{-k}}
+\end{equation}
 o por su ecuación en diferencias equivalente
 \begin{equation}
   \label{eq:DiffEq}
@@ -82,22 +85,26 @@ Conecte cada uno de estos pines a los pines del mismo nombre en la tarjeta Ardui
   \label{fig:accel}
 \end{figure}
 
-Asegúrese de \textbf{alimentar correctamente el circuito}, de lo contrario, el circuito podría dañarse permanentemente. Es muy recomendable que el sensor se coloque \textbf{horizontal y alineado} con los ejes del robot. 
+Asegúrese de \textbf{alimentar correctamente el circuito}, de lo contrario, el circuito podría dañarse permanentemente. Es muy recomendable que el sensor se coloque \textbf{horizontalmente y con el eje X alineado con el eje sagital del robot}. 
+
+\subsection{Biblioteca para el sensor MMA8452Q}
+
+El circuito MMA8452Q utiliza comunicación I2C para enviar las lecturas, por lo que tendría que programarse este protocolo en el nodo del Arduino, sin embargo, el fabricante proporciona una biblioteca para facilitar dicha comunicación. 
+
+Descarge las bibliotecas para Arduino de la dirección \url{https://cdn.sparkfun.com/assets/learn_tutorials/2/4/9/SFE_MMA8452Q-library.zip}. Siga las instrucciones contenidas en la página \url{https://learn.sparkfun.com/tutorials/mma8452q-accelerometer-breakout-hookup-guide/example-code} para instalar y utilizar la biblioteca. 
 
 \subsection{Nodo en el Arduino que publica los valores de aceleración}
-El circuito MMA8452Q utiliza comunicación I2C para enviar las lecturas por lo que tendría que programarse este protocolo en el nodo del Arduino, sin embargo, el fabricante proporciona una biblioteca para Arduino con la que se facilita bastante la comunicación con este circuito. 
-
-Descarge las bibliotecas para Arduino de la dirección \url{https://cdn.sparkfun.com/assets/learn_tutorials/2/4/9/SFE_MMA8452Q-library.zip}. 
-
-Implemente un nodo en la tarjeta Arduino Uno (siguiendo un procedimiento similar a la práctica 3) que publique un tópico de tipo \texttt{std\_msgs::Float32MultiArray} con el nombre \texttt{/minirobot/hardware/sensors} que contenga las lecturas del acelerómetro, además de todos los sensores construidos en las prácticas 4 y 5. El tamaño del arreglo de flotantes contenido en el mensaje \textbf{debe ser 15} y las lecturas de los sensores deben estar en el siguiente orden: 
+Implemente un nodo en el Arduino que publique un tópico tipo \texttt{std\_msgs::Float32MultiArray} con el nombre \texttt{/minirobot/hardware/sensors} que contenga las lecturas del acelerómetro, además de todos los sensores construidos en las prácticas 4 y 5. El tamaño del arreglo de flotantes contenido en el mensaje \textbf{debe ser 15} y las lecturas de los sensores deben estar en el siguiente orden (ver prácticas 4 y 5 para los demás sensores): 
 
 \begin{verbatim}
-  {SD0  SD1  SD2  SD3  SD4  SD5  SD6  SD7   AccelX  AccelY  AccelZ   SLL  SLR  ST  SB}
+  {SD0 SD1 SD2 SD3 SD4 SD5 SD6 SD7   AccelX AccelY AccelZ   SLL  SLR  ST  SB}
 \end{verbatim}
 
-De los quince datos, los primeros ocho corresponden a los sensores de distancia, los siguietes tres datos deben ser cero (se utilizarán en la siguiente práctica para la lectura del acelerómetro) y los últimos cuatro deben contener las lecturas de los sensores de luz izquierdo y derecho, sensor de temperatura y sensor de batería, en ese orden. Por ejemplo, suponga que los sensores SD0, SD2 y SD3 detectan objetos cercanos, los voltajes de los sensores de luz son 3.5V y 4.5V, la batería tiene un nivel de 8.0V y el sensor de temperatura entrega una salida de 0.8V. Dado que el Arduino Uno tiene un ADC de 10 bits alimentado a 5V, el contenido del arreglo debería ser (recuerde que la batería pasa por un divisor de voltaje):
+El acelerómetro puede reportar las lecturas de dos formas: \textit{raw data} y \textit{calculated data}. La primera reporta la aceleración como un entero de 12 bits y la segunda como un flotante en múltiplos de $g$. Los datos \textbf{deben reportarse como múltiplos de $g$}.
+
+Por ejemplo, suponga que el acelerómetro está en reposo, en posición horizontal. Dado que siempre se tiene ruido en las mediciones, las lecturas de los tres ejes podrían ser $[0.0031,\;0.0041,\;0.99976]$. Si además los sensores SD0, SD2 y SD3 detectan objetos cercanos, los voltajes de los sensores de luz son 3.5V y 4.5V, la batería tiene un nivel de 8.0V y el sensor de temperatura entrega una salida de 0.8V, entonces, dado que el Arduino Uno tiene un ADC de 10 bits alimentado a 5V, el contenido del arreglo debería ser (recuerde que la batería pasa por un divisor de voltaje):
 \begin{verbatim}
-  {0  1  0  0  1  1  1  1  0  0  0  717  922  164  819}
+  {0  1  0  0  1  1  1  1  0.0031  0.0041  0.99976  717  922  164  819}
 \end{verbatim}
 
 con lo que la GUI desplegará algo como lo que se muestra en la figura \ref{fig:Example}. Para correr la GUI y visualizar los datos, en una nueva terminal, ejecute el comando
@@ -109,24 +116,61 @@ $  rosrun mini_robot_gui mini_robot_gui_node
 \begin{figure}
   \centering
   \includegraphics[width=0.7\textwidth]{Figures/SensorExample.png}
-  \caption{Ejemplo de lectura de sensores. SD0, SD2 y SD3 detectan objetos cercanos. Sensores de luz con salidas de 3.5V y 4.5V, sensor de temperatura entrega 0.8V y batería con 8.0V.}
+  \caption{Ejemplo de lectura de sensores.}
   \label{fig:Example}
 \end{figure}
 
+\subsection{Cambio de \textit{baudrate} en el Arduino}
+Para el correcto funcionamiento del nodo del Arduino es necesario incrementar el \textit{baudrate} para asegurar que los datos se transmitan con suficiente rapidez y no haya pérdida de paquetes. 
 
-*Instalar la librería
-*Modificar el baudrate
-*Publicar el tópico en el orden correcto. 
+Cambie el \textit{baudrate} del nodo del Arduino a 500000 bps agregando la línea 
+\begin{lstlisting}
+nh.getHardware()->setBaud(500000);
+\end{lstlisting}
+dentro de la función \texttt{setup()}, antes de llamar a la función \texttt{nh.initNode()}. Se asume que \texttt{nh} es el nombre de la variable de tipo \texttt{ros::NodeHandle}.
+
+El nodo \texttt{serial\_node.py} debe ejecutarse con el comando
+\begin{lstlisting}
+$  rosrun rosserial_python serial_node.py _port:=/dev/ttyACM0 _baud:=500000
+\end{lstlisting}
+Asegúrese de seleccionar el puerto \texttt{tty} correcto. 
 
 \subsection{Nodo para filtrado y cálculo de velocidad}
 
-*Suscribirse a las lecturas de los sensores
-*Utilizar un butterworth pasabandas de matlab
-*Integrar usando el trapecio
-*publicar la velocidad en /minirobot/estimated\_speed
+Programe un nodo, para ejecutarse en la computadora de escritorio o laptop, que se suscriba al tópico \texttt{/minirobot/hardware/sensors}. 
 
+En este nodo, implemente un filtro pasa-banda de cuarto orden o superior, con frecuencias de corte de 0.5Hz y 5Hz, para filtrar la señal de aceleración en el eje $X$ únicamente. Puede utilizarse el comando \texttt{butter} incluido en el \textit{Signal Processing Toolbox} de MATLAB. Este comando devuelve dos arreglos de valores $[B,A]$ que corresponden a los coeficientes $b_k$ y $a_k$ de los polinomios en el numerador y denominador, respectivamente, de la ecuación (\ref{eq:Transfer}). 
 
-*En el desarrollo, aclarar que se deben mandar valores en G, no en enteros.
+El comando \texttt{butter} diseña un filtro digital empleando frecuencias de corte normalizadas, es decir, valores en [0,1], donde 1.0 corresponde a la mitad de la frecuencia de muestreo. Por lo tanto, para obtener la banda de 0.5-5.0Hz, las frecuencias de corte deben seleccionarse considerando la frecuencia de muestreo del nodo que se está implementando. Recuerde que esta frecuencia se fija con la clase \texttt{ros::Rate}.
+
+En las ecuaciones (\ref{eq:Transfer}) y (\ref{eq:DiffEq}), la señal $x[n]$ corresponde a la aceleración (en el eje $X$) sin filtrar, y la señal $y[n]$ es la aceleración ya filtrada. Para obtener dicha señal filtrada, basta con despejar $y[n]$ de la ecuación (\ref{eq:DiffEq}), con lo que se obtiene la señal de salida en el tiempo actual, en términos de la entrada actual y salidas y entradas anteriores. 
+
+En este mismo nodo, estime la velocidad en el eje $X$ mediante la integración numérica de la aceleración por el método del trapecio. Recuerde que en la ecuación (\ref{eq:Integral}), $\Delta t$ es el periodo de muestreo, que se fija con la clase \texttt{ros::Rate}. Nótese que para el diseño del filtro se requiere la \textbf{frecuencia} de muestreo, mientras que para la integración se utiliza el \textbf{periodo} de muestreo. 
+
+Publique la señal de aceleración filtrada en el tópico \texttt{/minirobot/filtered\_accel}, de tipo \texttt{std\_msgs::Float32}. También publique la velocidad estimada en un tópico del mismo tipo con nombre \texttt{/minirobot/estimated\_speed}.
+
+\subsection{Visualización de la velocidad y aceleración}
+Para graficar la velocidad y aceleración en función del tiempo se utilizará el paquete \texttt{rqt\_plot}.
+
+Para instalar el paquete, en una terminal teclee los siguientes comandos
+\begin{lstlisting}{language=bash}
+$  sudo apt-get install ros-indigo-rqt
+$  sudo apt-get install ros-indigo-rqt-common-plugins
+\end{lstlisting}
+
+Ejecute el nodo del Arduino y el nodo de la subsección anterior. En otra terminal, teclee el siguiente comando
+\begin{lstlisting}{language=bash}
+$  rqt_plot /minirobot/filtered_accel /minirobot/estimated_speed
+\end{lstlisting}
+Aparecerá una gráfica con los valores de ambas señales.
+
+\section{Evaluación}
+\begin{itemize}
+\item Los valores de aceleración deben mostrarse correctamente en la GUI. Al rotar al robot debe notarse claramente un cambio en la GUI por la componente de gravedad.
+\item Todos los sensores, tanto el acelerómetro, como los de las prácticas anteriores, deben estar montados en el robot y funcionando correctamente. 
+\item El correcto funcionamiento del filtro y el integrador se verificará mediante las gráficas desplegadas en el \texttt{rqt\_plot}.
+\item Se girará al robot de modo que la componente de gravedad coincida con el eje $X$ para verificar el funcionamiento del filtro pasa-banda. 
+\end{itemize}
 
 \end{document}
 
