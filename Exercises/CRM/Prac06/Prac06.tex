@@ -1,4 +1,4 @@
-\documentclass[letterpaper,12pt]{article}
+\documentclass[a4paper,12pt]{article}
 \usepackage[spanish]{babel}
 \spanishdecimal{.}
 \selectlanguage{spanish}
@@ -141,7 +141,7 @@ Programe un nodo, para ejecutarse en la computadora de escritorio o laptop, que 
 
 En este nodo, implemente un filtro pasa-banda de cuarto orden o superior, con frecuencias de corte de 0.5Hz y 5Hz, para filtrar la señal de aceleración en el eje $X$ únicamente. Puede utilizarse el comando \texttt{butter} incluido en el \textit{Signal Processing Toolbox} de MATLAB. Este comando devuelve dos arreglos de valores $[B,A]$ que corresponden a los coeficientes $b_k$ y $a_k$ de los polinomios en el numerador y denominador, respectivamente, de la ecuación (\ref{eq:Transfer}). 
 
-El comando \texttt{butter} diseña un filtro digital empleando frecuencias de corte normalizadas, es decir, valores en [0,1], donde 1.0 corresponde a la mitad de la frecuencia de muestreo. Por lo tanto, para obtener la banda de 0.5-5.0Hz, las frecuencias de corte deben seleccionarse considerando la frecuencia de muestreo del nodo que se está implementando. Recuerde que esta frecuencia se fija con la clase \texttt{ros::Rate}.
+El comando \texttt{butter} diseña un filtro Butterworth digital empleando frecuencias de corte normalizadas, es decir, valores en [0,1], donde 1.0 corresponde a la mitad de la frecuencia de muestreo. Por lo tanto, para obtener la banda de 0.5-5.0Hz, las frecuencias de corte deben seleccionarse considerando la frecuencia de muestreo del nodo que se está implementando. Recuerde que esta frecuencia se fija con la clase \texttt{ros::Rate}.
 
 En las ecuaciones (\ref{eq:Transfer}) y (\ref{eq:DiffEq}), la señal $x[n]$ corresponde a la aceleración (en el eje $X$) sin filtrar, y la señal $y[n]$ es la aceleración ya filtrada. Para obtener dicha señal filtrada, basta con despejar $y[n]$ de la ecuación (\ref{eq:DiffEq}), con lo que se obtiene la señal de salida en el tiempo actual, en términos de la entrada actual y salidas y entradas anteriores. 
 
