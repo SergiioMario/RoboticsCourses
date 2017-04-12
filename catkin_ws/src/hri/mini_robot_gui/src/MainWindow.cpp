@@ -7,7 +7,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     
-    scRobot = new QGraphicsScene(0,0,320,240,ui->graphicsViewRobot);
+    scRobot  = new QGraphicsScene(0,0,320,240,ui->graphicsViewRobot);
     giBaseEllipse = scRobot->addEllipse(45, 5, 230, 230, QPen(Qt::gray), QBrush(Qt::gray));
     giLeftTire    = scRobot->addRect(60, 85, 40, 75, QPen(Qt::black), QBrush(Qt::black));
     giRightTire   = scRobot->addRect(220, 85, 40, 75, QPen(Qt::black), QBrush(Qt::black));
@@ -28,6 +28,9 @@ MainWindow::MainWindow(QWidget *parent) :
     giAccelZ = scAccel->addLine(67, 62, 67, 122, QPen(Qt::blue, 5));
     ui->graphicsViewAccel->setScene(scAccel);
 
+    scCamera = new QGraphicsScene(0,0,320,240,ui->graphicsViewRobot);
+    giCamera = scCamera->addPixmap(pmCamera);
+
     QIcon icoFwd(":/images/btnUp");
     QIcon icoBwd(":/images/btnDown");
     QIcon icoLeft(":/images/btnLeft");
@@ -45,6 +48,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->btnLeft, SIGNAL(released()), this, SLOT(btnLeftReleased()));
     QObject::connect(ui->btnRight, SIGNAL(pressed()), this, SLOT(btnRightPressed()));
     QObject::connect(ui->btnRight, SIGNAL(released()), this, SLOT(btnRightReleased()));
+    QObject::connect(ui->chkShowCamera, SIGNAL(stateChanged(int)), this, SLOT(chkShowCameraChanged(int)));
 }
 
 MainWindow::~MainWindow()
@@ -100,6 +104,9 @@ void MainWindow::updateGraphicsReceived()
     ui->lblLightSensorL->setText("L: " + QString::number((int)(qtRosNode->sensorLightL)));
     ui->lblLightSensorR->setText("R: " + QString::number((int)(qtRosNode->sensorLightR)));
     ui->lblAccelMvnAvg->setText("Accel Mvn Avg: " + QString::number(qtRosNode->accelMvnAvg, 'f', 5));
+
+    pmCamera.loadFromData(qtRosNode->imgCompressed.data(), qtRosNode->imgCompressed.size(), "JPG");
+    giCamera->setPixmap(pmCamera);
 }
 
 void MainWindow::btnFwdPressed()
@@ -152,4 +159,12 @@ void MainWindow::btnRightReleased()
 {
     qtRosNode->leftSpeed = 0;
     qtRosNode->rightSpeed = 0;
+}
+
+void MainWindow::chkShowCameraChanged(int value)
+{
+    if(value == 0)
+        ui->graphicsViewRobot->setScene(scRobot);
+    else
+        ui->graphicsViewRobot->setScene(scCamera);
 }

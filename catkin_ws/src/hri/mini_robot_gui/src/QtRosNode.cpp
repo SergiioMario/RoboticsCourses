@@ -26,8 +26,9 @@ QtRosNode::~QtRosNode()
 
 void QtRosNode::run()
 {    
-    ros::Rate loop(20);
+    ros::Rate loop(30);
     subSensors = n->subscribe("/minirobot/hardware/sensors", 10, &QtRosNode::callbackSensors, this);
+    subCompressedImg = n->subscribe("/minirobot/hardware/img_compressed", 10, &QtRosNode::callbackCompressedImage, this);
     pubSpeeds  = n->advertise<std_msgs::Float32MultiArray>("/minirobot/hardware/motor_speeds", 10);
 
     std_msgs::Float32MultiArray msgSpeeds;
@@ -53,8 +54,9 @@ void QtRosNode::run()
             pubSpeeds.publish(msgSpeeds);
             isZeroSpeedSent = 5;
         }
-        emit updateGraphics();
+        
         ros::spinOnce();
+        emit updateGraphics();
         loop.sleep();
     }
     emit onRosNodeFinished();
@@ -96,4 +98,10 @@ void QtRosNode::callbackSensors(const std_msgs::Float32MultiArray::ConstPtr& msg
     accelMvnAvgQueue[accelMvnAvgQueue.size()-1] = accel;
     accelMvnAvg /= accelMvnAvgQueue.size();
         
+}
+
+void QtRosNode::callbackCompressedImage(const std_msgs::UInt8MultiArray::ConstPtr& msg)
+{
+    imgCompressed = msg->data;
+    //std::cout << "camera img received" << std::endl;
 }

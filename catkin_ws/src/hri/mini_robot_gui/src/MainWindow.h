@@ -29,6 +29,7 @@ public:
 
     //Elements for drawing the minirobot
     QGraphicsScene* scRobot;
+    QGraphicsScene* scCamera;
     QGraphicsEllipseItem* giBaseEllipse;
     std::vector<QGraphicsEllipseItem*> giDistSensors;
     QGraphicsRectItem* giLeftTire;
@@ -39,6 +40,8 @@ public:
     QGraphicsLineItem* giAccelX;
     QGraphicsLineItem* giAccelY;
     QGraphicsLineItem* giAccelZ;
+    QGraphicsPixmapItem* giCamera;
+    QPixmap pmCamera;
 
 public slots:
     //Slots for signals emitted in the QtRosNode (e.g. a topic is received)
@@ -51,6 +54,7 @@ public slots:
     void btnLeftReleased();
     void btnRightPressed();
     void btnRightReleased();
+    void chkShowCameraChanged(int value);
 
 private:
     Ui::MainWindow *ui;
