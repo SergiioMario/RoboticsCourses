@@ -9,7 +9,7 @@
 
 \title{Práctica 2 \\ Instalación de software para operar robots móviles}
 \author{Laboratorio de Bio-Robótica}
-\date{Robots Móviles y Agentes Inteligentes}
+\date{Robots Móviles y Agentes Inteligentes, 2018-1}
 \begin{document}
 \renewcommand{\tablename}{Tabla}
 \maketitle
@@ -30,17 +30,18 @@ En la página \url{https://git-scm.com/} se pueden encontrar tutoriales para apr
 
 \section{Desarrollo}
 \subsection{Instalación de Git y obtención del software}
-\textbf{Nota.} Se asume que el alumno ya tiene instalado Ubuntu 14.04 y ROS Indigo. 
+\textbf{Nota.} Se asume que el alumno ya tiene instalado Ubuntu 16.04 y ROS kinetic. 
 
 En una terminal, teclear los siguientes comandos:
 \begin{verbatim}
-sudo apt-get install git
-cd ~
-git clone https://github.com/mnegretev/RoboticsCourses.git
+$  sudo apt-get install git
+$  cd
+$  git clone https://github.com/mnegretev/RoboticsCourses.git
+$  cd RoboticsCourses
 \end{verbatim}
 Lo anterior descarga una copia del repositorio que contiene el material a usar durante el curso. Para descargar una actualización, teclee el siguiente comando:
 \begin{verbatim}
-git pull origin master
+$  git pull origin master
 \end{verbatim}
 Puesto que en este momento no hay ninguna actualización disponible, se debe leer la siguiente salida:
 \begin{verbatim}
@@ -52,21 +53,23 @@ Already up-to-date.
 \subsection{Instalación de dependencias y compilación}
 Para poder compilar y ejecutar el software, es necesario instalar varias dependencias. Para ello, en una terminal teclee los siguientes comandos:
 \begin{verbatim}
-cd ~/RoboticsCourses
-./Setup.sh
+$  cd
+$  cd RoboticsCourses/Prerequisites
+$  sudo ./Setup.sh --install
+$  sudo ./Setup.sh --update
 \end{verbatim}
 
 Esto comenzará a instalar varias bibliotecas como OpenCV (software para visión computacional), PCL (procesamiento de nubes de puntos), PrimeSense (controladores para cámaras RGB-D) y algunos paquetes de ROS necesarios. Cuando el script termine de ejecutarse, teclee los siguientes comandos para compilar el código:
 \begin{verbatim}
-cd ~/RoboticsCourses/catkin_ws
-catkin_make
+$  cd
+$  cd RoboticsCourses/catkin_ws
+$  catkin_make
 \end{verbatim}
 
 Una vez finalizada la compilación, ejecute los siguientes comandos:
 
 \begin{verbatim}
-cd ~/RoboticsCourses/catkin_ws
-source devel/setup.bash
+source ~/RoboticsCourses/catkin_ws/devel/setup.bash
 roslaunch bring_up hardware_simul.launch
 \end{verbatim}
 
@@ -89,10 +92,10 @@ El comando anterior \textit{publica} el \textit{tópico} \texttt{/hardware/mobil
 Escriba un nodo que publique en el tópico \texttt{/hardware/mobile\_base/speeds} las velocidades necesarias para que el robot describa un cuadrado de 1m x 1m. El tópico debe publicarse 10 veces por segundo. El lenguaje puede ser C++ o Python.
 
 \section{Evaluación}
-Para que la práctica se condidere entregada se deben cumplir los siguientes puntos:
+Para que la práctica se considere entregada se deben cumplir los siguientes puntos:
 \begin{itemize}
 \item El movimiento del robot en el visualizador debe describir claramente un cuadrado.
-\item El comando \texttt{rostopic echo} debe mostrar que el tópico se está publicando claramente.
+\item El comando \texttt{rostopic echo} debe mostrar que el tópico se está publicando correctamente.
 \end{itemize}
 
 \end{document}
