@@ -5,17 +5,32 @@ project(kinect_man)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  cv_bridge
   geometry_msgs
   roscpp
   rospy
   sensor_msgs
   std_msgs
   tf
+  point_cloud_manager
+  tf_conversions
+  pcl_ros
 )
 
 ## System dependencies are found with CMake's conventions
-find_package(OpenCV REQUIRED)
-
+#set(ENV{OpenCV_DIR} "/usr/local")
+find_package(OpenCV 3 REQUIRED)
+find_package(PCL 1.2 REQUIRED)
+#set(CMAKE_PREFIX_PATH "/usr/local/")
+#set(OpenCV_LIB_DIR "/usr/local/lib")
+#set(OpenCV_INCLUDE_DIRS "/usr/local/include")
+#message("Includes: " ${OpenCV_INCLUDE_DIRS})
+message("Veersion OpenCV" ${OpenCV_VERSION})
+#set(OpenCV_DIR "/usr/local/lib")
+message("Libs dir" ${OpeCV_LINK_DIR})
+message("Libs: " ${OpenCV_LIBS})
+message("OpenCV_LIB_COMPONENTS:" ${OpenCV_LIB_COMPONENTS})
+message("OpenCV_CONFIG_PATH" ${OpenCV_CONFIG_PATH})
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -105,7 +120,7 @@ find_package(OpenCV REQUIRED)
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES kinect_man
-#  CATKIN_DEPENDS geometry_msgs roscpp rospy sensor_msgs std_msgs tf
+#  CATKIN_DEPENDS cv_bridge geometry_msgs roscpp rospy sensor_msgs std_msgs tf
 #  DEPENDS system_lib
 )
 
@@ -119,6 +134,7 @@ catkin_package(
 include_directories(
   ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
+  ${PCL_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -140,8 +156,9 @@ add_dependencies(kinect_man_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EX
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(kinect_man_node
-  ${catkin_LIBRARIES}
-  ${OpenCV_LIBS}
+   ${catkin_LIBRARIES}
+   #${OpenCV_LIBS}
+   ${PCL_LIBRARIES}
 )
 
 #############

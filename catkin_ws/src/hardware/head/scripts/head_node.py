@@ -63,10 +63,10 @@ def callbackPosHead(msg):
     if modeTorque != 1:
         ## Change to Position mode
         dynMan1.SetCWAngleLimit(5, 0)
-        dynMan1.SetCCWAngleLimit(5, 1023)
+        dynMan1.SetCCWAngleLimit(5, 4095)
 
-        dynMan1.SetCWAngleLimit(1, 411)
-        dynMan1.SetCCWAngleLimit(1, 800)
+        #dynMan1.SetCWAngleLimit(1, 411)
+        #dynMan1.SetCCWAngleLimit(1, 800)
         
         dynMan1.SetTorqueEnable(5, 1)
         dynMan1.SetTorqueEnable(1, 1)
@@ -91,10 +91,11 @@ def callbackPosHead(msg):
         goalPosTilt = 0
 
     # Conversion float to bits
-    goalPosTilt = int((-(goalPosTilt)/(300.0/1023.0*3.14159265358979323846/180.0) ) + 512)
-    goalPosPan = int((  (goalPosPan)/(300.0/1023.0*3.14159265358979323846/180.0) ) + 529 )
+    goalPosTilt = int((-(goalPosTilt)/(250.0/4095.0*3.14159265358979323846/180.0) ) + 512)
+    goalPosPan = int((  (goalPosPan)/(250.0/4095.0*3.14159265358979323846/180.0) ) + 529 )
 
-    if goalPosTilt >= 411 and goalPosTilt <= 800 and goalPosPan >= 0 and goalPosPan <=1023:
+    #if goalPosTilt >= 411 and goalPosTilt <= 800 and goalPosPan >= 0 and goalPosPan <=1023:
+    if  goalPosPan >= 0 and goalPosPan <=4095:    
         dynMan1.SetGoalPosition(5, goalPosPan)
         dynMan1.SetGoalPosition(1, goalPosTilt)
     #else:
@@ -158,10 +159,8 @@ def main(portName, portBaud):
     
 
     dynMan1.SetCWAngleLimit(5, 0)
-    dynMan1.SetCCWAngleLimit(5, 1023)
+    dynMan1.SetCCWAngleLimit(5, 4095)
 
-    dynMan1.SetCWAngleLimit(1, 411)
-    dynMan1.SetCCWAngleLimit(1, 800)
     dynMan1.SetGoalPosition(5, 529)
     dynMan1.SetGoalPosition(1, 512)
  

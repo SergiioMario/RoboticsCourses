@@ -7,8 +7,14 @@ from std_msgs.msg import Float32MultiArray
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import TransformStamped
 from geometry_msgs.msg import Twist
-from hardware_tools import roboclaw_driver as Roboclaw
+#from hardware_tools import roboclaw_driver as Roboclaw #Version ANterior
+from hardware_tools import roboclaw  
+#from roboclaw import oboclaw 
+#Version modificada para la plataforma base
 import tf
+
+#Roboclaw = roboclaw.Roboclaw("/dev/justinaRC30", 38400) #nombre del puerto, baudrate del puerto
+
 
 def printHelp():
     print "MOBILE BASE for JustinaCN BY MARCOSOFT. Options:"
@@ -86,16 +92,32 @@ def main(portName, simulated):
     subSpeeds = rospy.Subscriber("mobile_base/speeds", Float32MultiArray, callbackSpeeds)
     #subCmdVel = rospy.Subscriber("mobile_base/cmd_vel", Twist, callbackCmdVel)
 
+    #Creacion de la instancia para la libreria de la RoboClaw
+   
     br = tf.TransformBroadcaster()
     rate = rospy.Rate(20)
+    Roboclaw = roboclaw.Roboclaw(portName, 115200) #nombre del puerto, baudrate del puerto
+
+
     ###Communication with the Roboclaw
     if not simulated:
         print "MobileBase.-> Trying to open serial port on \"" + portName + "\""
-        Roboclaw.Open(portName, 38400)
+ 
+        #Abrir el puerto
+        Roboclaw.Open()
+ 
+        #Roboclaw.Open(portName, 38400)
+        
         address = 0x80
         print "MobileBase.-> Serial port openned on \"" + portName + "\" at 38400 bps (Y)"
         print "MobileBase.-> Clearing previous encoders readings"
-        Roboclaw.ResetEncoders(address)
+        
+       
+
+        #Roboclaw.ResetEncoders(address)
+
+        Roboclaw.ResetEncoders(address) #reseteando encoders
+
     ###Variables for setting tire speeds
     global leftSpeed
     global rightSpeed
@@ -110,17 +132,20 @@ def main(portName, simulated):
         if newSpeedData:
             newSpeedData = False
             speedCounter = 5
-            if not simulated:
-                leftSpeed = int(leftSpeed*127)
-                rightSpeed = int(rightSpeed*127)
-                if leftSpeed >= 0:
-                    Roboclaw.ForwardM2(address, leftSpeed)
-                else:
-                    Roboclaw.BackwardM2(address, -leftSpeed)
-                if rightSpeed >= 0:
-                    Roboclaw.ForwardM1(address, rightSpeed)
-                else:
-                    Roboclaw.BackwardM1(address, -rightSpeed)
+            #try:
+	    if not simulated:
+	        leftSpeed = int(leftSpeed*127)
+	        rightSpeed = int(rightSpeed*127)
+	        if leftSpeed >= 0:
+	            Roboclaw.ForwardM2(address, leftSpeed)
+	        else:
+	            Roboclaw.BackwardM2(address, -leftSpeed)
+	        if rightSpeed >= 0:
+	            Roboclaw.ForwardM1(address, rightSpeed)
+	        else:
+	            Roboclaw.BackwardM1(address, -rightSpeed)
+             #except 
+                 
         else:
             speedCounter -= 1
             if speedCounter == 0:
@@ -164,7 +189,8 @@ def main(portName, simulated):
         ###Reads battery and publishes the corresponding topic
         motorBattery = 18.5
         if not simulated:
-            motorBattery = Roboclaw.ReadMainBattVoltage(address)
+            #motorBattery = Roboclaw.ReadMainBattVoltage(address)
+            motorBattery = Roboclaw.ReadMainBatteryVoltage(address) #Lectura de voltaje de bateria
         msgBattery = Float32()
         msgBattery.data = motorBattery
         pubBattery.publish(msgBattery)
@@ -173,7 +199,7 @@ def main(portName, simulated):
     if not simulated:
         Roboclaw.ForwardM1(address, 0)
         Roboclaw.ForwardM2(address, 0)
-        Roboclaw.Close()
+        #Roboclaw.Close()  No aparece en la nueva libreria
 #end of main()
 
 if __name__ == '__main__':
@@ -192,3 +218,6 @@ if __name__ == '__main__':
             main(portName, simulated)
     except rospy.ROSInterruptException:
         pass
+
+#Version 23-JUNIO-2017 __ 15-15 Hrs.
+
