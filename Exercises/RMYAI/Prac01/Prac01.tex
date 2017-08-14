@@ -8,13 +8,13 @@
 
 \title{Práctica 1 \\ Instalación de Herramientas de Software}
 \author{Laboratorio de Bio-Robótica}
-\date{Robots Móviles y Agentes Inteligentes}
+\date{Robots Móviles y Agentes Inteligentes, 2018-1}
 \begin{document}
 \renewcommand{\tablename}{Tabla}
 \maketitle
 \section*{Objetivos}
 \begin{itemize}
-\item Familiarizar al alumno con el uso del sistema operativo Linux, distribución Ubuntu versión 14.04.
+\item Familiarizar al alumno con el uso del sistema operativo Linux, distribución Ubuntu versión 16.04.
 \item Aprender los conceptos básicos de ROS (Robot Operating System).
 \end{itemize}
 
@@ -26,7 +26,7 @@ ROS puede describirse en dos niveles conceptuales: el sistema de archivos y el g
 \textbf{El sistema de archivos.} Se refiere al modo en que están organizados los recursos en disco:
 \begin{itemize}
 \item \textbf{\textit{Workspace:}} Se refiere a las carpetas que contienen paquetes de ROS.
-\item \textbf{Paquete:} Es la principal unidad de organización de software en ROS. Pueden contener nodos, bibliotecas, datasets, archivos de configuración y otros.
+\item \textbf{Paquete:} Es la principal unidad de organización de software en ROS. Puede contener nodos, bibliotecas, datasets, archivos de configuración y otros.
 \item \textbf{Manifiesto:} Definido por el archivo \texttt{package.xml} en cada paquete. Provee metadatos acerca de cada paquete. 
 \item \textbf{Mensaje:} Archivos con extensión \texttt{.msg}. Definen estructuras de datos para el paso de mensajes en ROS.
 \item \textbf{Servicio:} Archivos con extensión \texttt{.srv}. Definen estructuras de tipo \textit{request-response}. Utilizan mensajes para dicha definición.
@@ -37,29 +37,31 @@ ROS puede describirse en dos niveles conceptuales: el sistema de archivos y el g
 \item \textbf{Roscore:} Inicializa el sistema ROS: un máster + rosout + un servidor de parámetros.
 \item \textbf{Nodos:} Es simplemente un ejecutable que usa ROS para comunicarse con otros nodos.
 \item \textbf{Tópicos:} Algo similar a una variable cuyo contenido puede ser compartido entre todos los nodos mediante un patrón de publicación y suscripción. 
-\item \textbf{Servicios:} Otra forma de comunicar nodos pero con un patrón de petición y respuesta.
+\item \textbf{Servicios:} Otra forma de comunicar nodos pero con un patrón de petición y respuesta. Puede verse como una función que puede ser llamada por cualquier nodo.
 \item \textbf{Servidor de parámetros:} Es un diccionario compartido. Todos los nodos pueden leer y escribir parámetros en tiempo de ejecución.
 \end{itemize}
 
 \section{Desarrollo}
-\subsection{Instalación de Ubuntu 14.04}
-Instale Ubuntu 14.04, para ello, descargue la imagen de la siguiente dirección:
+\subsection{Instalación de Ubuntu 16.04}
+Instale Ubuntu 16.04, para ello, descargue la imagen de la siguiente dirección:
 
-\url{http://releases.ubuntu.com/14.04/}
+\url{https://www.ubuntu.com/download/desktop}
 
-Para instalar Ubuntu desde Windows, se pueden seguir las instrucciones de la siguiente página:
+Para instalar Ubuntu desde Windows, siga las instrucciones de alguno de los siguientes tutoriales:
 
-\url{http://www.ubuntu.com/download/desktop/create-a-usb-stick-on-windows}
+\url{www.ubuntu.com/download/desktop/create-a-usb-stick-on-windows}
+
+\url{www.tecmint.com/install-ubuntu-16-04-alongside-with-windows-10-or-8-in-dual-boot/}
 
 Asegúrese de instalar la versión correcta, de 32 o 64 bits. 
 
 \subsection{Instalación de ROS}
 
-Una vez instalado Ubuntu, instale ROS Indigo. Las instrucciones se encuentran en la siguiente página:
+Una vez instalado Ubuntu, instale ROS Kinetic. Las instrucciones se encuentran en la siguiente página:
 
-\url{http://wiki.ros.org/indigo/Installation/Ubuntu}
+\url{http://wiki.ros.org/kinetic/Installation/Ubuntu}
 
-En el paso 1.4, seleccione la opción \texttt{Desktop-Full}. Es importante haber instalado Ubuntu 14.04, dado que algunas de las instrucciones contenidas en esta página sólo funcionan correctamente en Ubuntu 13.10 y 14.04. También es muy recomendable instalar todo con las opciones por default, lo que facilitará los desarrollos del resto del curso. 
+En el paso 1.4, seleccione la opción \texttt{Desktop-Full}. Es importante haber instalado Ubuntu 16.04, dado que algunas de las instrucciones contenidas en esta página sólo funcionan correctamente en Ubuntu 15.10 y 16.04. También es muy recomendable instalar todo con las opciones por default, lo que facilitará los desarrollos del resto del curso. 
 
 \subsection{Tutoriales\label{tutorials}}
 
