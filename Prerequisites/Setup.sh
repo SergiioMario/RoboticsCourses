@@ -41,14 +41,14 @@ sudo rosdep init
 rosdep update
 if [ "$EUID" -ne 0 ]; then #HASNT BEEN RUNED AS ROOT
 	echo "source /opt/ros/kinetic/setup.bash" >> /home/$USER/.bashrc
-	echo "source /home/$USER/JUSTINA/catkin_ws/devel/setup.bash" >> /home/$USER/.bashrc
+	echo "source /home/$USER/RoboticsCourses/catkin_ws/devel/setup.bash" >> /home/$USER/.bashrc
 	source /home/$USER/.bashrc
-	source /home/$USER/JUSTINA/catkin_ws/devel/setup.bash
+	source /home/$USER/RoboticsCourses/catkin_ws/devel/setup.bash
 else #U R ROOT DUMB
 	echo "source /opt/ros/kinetic/setup.bash" >> /home/$SUDO_USER/.bashrc
-	echo "source /home/$SUDO_USER/JUSTINA/catkin_ws/devel/setup.bash" >> /home/$SUDO_USER/.bashrc
+	echo "source /home/$SUDO_USER/RoboticsCourses/catkin_ws/devel/setup.bash" >> /home/$SUDO_USER/.bashrc
 	source /home/$SUDO_USER/.bashrc
-	source /home/$SUDO_USER/JUSTINA/catkin_ws/devel/setup.bash
+	source /home/$SUDO_USER/RoboticsCourses/catkin_ws/devel/setup.bash
 fi
 sudo rosdep fix-permissions
 sudo apt-get install python-rosinstall
@@ -198,14 +198,14 @@ echo -e "${FRM}${RED}${BGWHITE}You can now ${NC}${FRM}${BLACK}${BGWHITE}behold${
 		fi
 if [ "$EUID" -ne 0 ]; then #HASNT BEEN RUNED AS ROOT
         echo "source /opt/ros/kinetic/setup.bash" >> /home/$USER/.bashrc
-        echo "source /home/$USER/JUSTINA/catkin_ws/devel/setup.bash" >> /home/$USER/.bashrc
+        echo "source /home/$USER/RoboticsCourses/catkin_ws/devel/setup.bash" >> /home/$USER/.bashrc
         source /home/$USER/.bashrc
-        source /home/$USER/JUSTINA/catkin_ws/devel/setup.bash
+        source /home/$USER/RoboticsCourses/catkin_ws/devel/setup.bash
 else #U R ROOT DUMB
         echo "source /opt/ros/kinetic/setup.bash" >> /home/$SUDO_USER/.bashrc
-        echo "source /home/$SUDO_USER/JUSTINA/catkin_ws/devel/setup.bash" >> /home/$SUDO_USER/.bashrc
+        echo "source /home/$SUDO_USER/RoboticsCourses/catkin_ws/devel/setup.bash" >> /home/$SUDO_USER/.bashrc
         source /home/$SUDO_USER/.bashrc
-        source /home/$SUDO_USER/JUSTINA/catkin_ws/devel/setup.bash
+        source /home/$SUDO_USER/RoboticsCourses/catkin_ws/devel/setup.bash
 fi
 		sudo cp ToInstall/USB/80-justinaRobot.rules /etc/udev/rules.d/
 		sudo udevadm control --reload-rules && sudo service udev restart && sudo udevadm trigger
