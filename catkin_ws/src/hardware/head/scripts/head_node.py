@@ -177,7 +177,7 @@ def main(portName, portBaud):
         # Pose in bits
         panPose = dynMan1.GetPresentPosition(5)
         tiltPose = dynMan1.GetPresentPosition(1)
-        print str(panPose) + " " + str(tiltPose)
+        #print str(panPose) + " " + str(tiltPose)
             
         loop.sleep()
 

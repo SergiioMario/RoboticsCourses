@@ -2,7 +2,7 @@
     <param name="robot_description" command="cat $(find config_files)/urdfs/justinaCN.xml" />
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher"/>
     <group ns="hardware">
-        <node name="mobile_base" pkg="mobile_base" type="mobile_base_CN.py" output="screen" args="--port /dev/justinaRC30"/>
+        <node name="mobile_base" pkg="mobile_base" type="mobile_base_NL.py" output="screen" args="--port /dev/justinaRC30"/>
         <node name="left_arm" pkg="arms" type="left_arm_simul_node.py" output="screen"/>
         <node name="right_arm" pkg="arms" type="right_arm_simul_node.py" output="screen"/>
         <node name="head" pkg="head" type="head_node.py" output="screen" args="--port /dev/ttyUSB0 --baud 1000000"/>

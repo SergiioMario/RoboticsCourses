@@ -7,7 +7,7 @@ from std_msgs.msg import Float32MultiArray
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import TransformStamped
 from geometry_msgs.msg import Twist
-from hardware_tools import roboclaw_driver as Roboclaw
+from hardware_tools import roboclaw  
 import tf
 
 def printHelp():
@@ -88,14 +88,18 @@ def main(portName, simulated):
 
     br = tf.TransformBroadcaster()
     rate = rospy.Rate(20)
+    Roboclaw = roboclaw.Roboclaw(portName, 115200) #nombre del puerto, baudrate del puerto
     ###Communication with the Roboclaw
     if not simulated:
         print "MobileBase.-> Trying to open serial port on \"" + portName + "\""
-        Roboclaw.Open(portName, 38400)
+        Roboclaw.Open()
         address = 0x80
+ 
         print "MobileBase.-> Serial port openned on \"" + portName + "\" at 38400 bps (Y)"
         print "MobileBase.-> Clearing previous encoders readings"
-        Roboclaw.ResetEncoders(address)
+
+        Roboclaw.ResetEncoders(address) #reseteando encoders
+   
     ###Variables for setting tire speeds
     global leftSpeed
     global rightSpeed
@@ -164,7 +168,7 @@ def main(portName, simulated):
         ###Reads battery and publishes the corresponding topic
         motorBattery = 18.5
         if not simulated:
-            motorBattery = Roboclaw.ReadMainBatteryVoltage(address)[1]/10.0 + 0.2 #There is an offset in battery reading
+            motorBattery = Roboclaw.ReadMainBatteryVoltage(address) #There is an offset in battery reading
         msgBattery = Float32()
         msgBattery.data = motorBattery
         pubBattery.publish(msgBattery)
