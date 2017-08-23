@@ -177,7 +177,7 @@ def main(portName, simulated):
     if not simulated:
         Roboclaw.ForwardM1(address, 0)
         Roboclaw.ForwardM2(address, 0)
-        Roboclaw.Close()
+        #Roboclaw.Close()
 #end of main()
 
 if __name__ == '__main__':
