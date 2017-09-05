@@ -11,7 +11,7 @@ from hardware_tools import roboclaw
 import tf
 
 def printHelp():
-    print "MOBILE BASE for JustinaNL BY MARCOSOFT. Options:"
+    print "MOBILE BASE for JustinaWinter BY MARCOSOFT. Options:"
     print "\t --port \t Serial port name. If not provided, the default value is \"/dev/ttyACM0\""
     print "\t --simul\t Simulation mode."
     print " - Mobile base can be moved by publishing either mobile_base/cmd_vel or"
@@ -168,7 +168,7 @@ def main(portName, simulated):
         ###Reads battery and publishes the corresponding topic
         motorBattery = 18.5
         if not simulated:
-            motorBattery = Roboclaw.ReadMainBatteryVoltage(address) #There is an offset in battery reading
+           motorBattery = Roboclaw.ReadMainBatteryVoltage(address) #Lectura de voltaje de bateria
         msgBattery = Float32()
         msgBattery.data = motorBattery
         pubBattery.publish(msgBattery)
@@ -177,7 +177,7 @@ def main(portName, simulated):
     if not simulated:
         Roboclaw.ForwardM1(address, 0)
         Roboclaw.ForwardM2(address, 0)
-        #Roboclaw.Close()
+       
 #end of main()
 
 if __name__ == '__main__':

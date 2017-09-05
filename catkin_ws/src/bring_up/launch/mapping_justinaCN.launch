@@ -9,7 +9,7 @@
         <node name="torso" pkg="torso" type="torso_simul_node.py" output="screen"/>
         <node name="joy" pkg="joy" type="joy_node" output="screen"/>
         <node name="hokuyo_node" pkg="urg_node" type="urg_node" output="screen">
-			<param name="serial_port" type="string" value="/dev/justinaHokuyoRear"/>
+			<param name="serial_port" type="string" value="/dev/justinaHokuyo"/>
 			<param name="frame_id" type="string" value="laser_link" />
 		</node>
         <node name="point_cloud_man" pkg="kinect_man" type="kinect_man_node" output="screen"/>
