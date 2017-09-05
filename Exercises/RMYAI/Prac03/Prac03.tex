@@ -9,7 +9,7 @@
 \usepackage{hyperref}
 \usepackage{verbatim}
 
-\title{Práctica 4  \\ Creación de una mapa de celdas de ocupación mediante el paquete \texttt{gmapping}}
+\title{Práctica 3  \\ Creación de una mapa de celdas de ocupación mediante el paquete \texttt{gmapping}}
 \author{Laboratorio de Bio-Robótica}
 \date{Robots Móviles y Agentes Inteligentes}
 \begin{document}
@@ -35,27 +35,27 @@ El paquete \texttt{gmapping} sirve para crear celdas de ocupación a partir de l
 \subsection{Prerrequisitos}
 Como primer paso, asegúrese de actualizar y recompilar el repositorio mediante los comandos:
 \begin{verbatim}
-cd ~/RoboticsCourses
-git pull origin master
-cd catkin_ws
-catkin_make
+$  cd ~/RoboticsCourses
+$  git pull origin master
+$  cd catkin_ws
+$  catkin_make
 \end{verbatim}
 
 Antes de poder utilizar el hardware, es necesario configurar los nombres que el sistema operativo asignará al sensor láser, joystick y base móvil, para ello ejecute los siguientes comandos:
 \begin{verbatim}
-sudo cp ~/RoboticsCourses/Prerequisites/80-justinaRobot.rules /etc/udev/rules.d/
-sudo udevadm control --reload-rules
-sudo service udev restart && sudo udevadm trigger
+$  sudo cp ~/RoboticsCourses/Prerequisites/80-justinaRobot.rules /etc/udev/rules.d/
+$  sudo udevadm control --reload-rules
+$  sudo service udev restart && sudo udevadm trigger
 \end{verbatim}
 
 Además, es necesario instalar el paquete \texttt{gmapping} con el comando:
 \begin{verbatim}
-sudo apt-get install ros-indigo-gmapping
+$  sudo apt-get install ros-kinetic-gmapping
 \end{verbatim}
 
 \subsection{Creación del mapa}
-En el laboratorio se dispone de dos bases móviles para realizar las pruebas: JustinaCN y JustinaNL. Las figuras \ref{fig:JustinaCN} y 
-\ref{fig:JustinaNL} son fotos de las dos bases disponibles. 
+En el laboratorio se dispone de dos bases móviles para realizar las pruebas: JustinaCN y Winter Justina. Las figuras \ref{fig:JustinaCN} y 
+\ref{fig:JustinaWinter} son fotos de las dos bases disponibles. 
 
 \begin{figure}
 \centering
@@ -67,21 +67,21 @@ En el laboratorio se dispone de dos bases móviles para realizar las pruebas: Ju
 \end{subfigure}
 \begin{subfigure}{0.45\textwidth}
   \centering
-  \includegraphics[width=0.43\textwidth]{Figures/JustinaNL.jpg}
-  \caption{JustinaNL}
-  \label{fig:JustinaNL}
+  \includegraphics[width=0.43\textwidth]{Figures/JustinaWinter.jpg}
+  \caption{Winter Justina}
+  \label{fig:JustinaWinter}
 \end{subfigure}
 \caption{Bases móbiles disponibles en el Laboratorio de Biorrobótica}
 \end{figure}
 
 Para comenzar a crear el mapa con JustinaCN, conecte el cable USB etiquetado como ``USB\_Main'' a cualquier puerto de la computadora y ejecute el comando:
 \begin{verbatim}
-roslaunch bring_up mapping_justinaCN
+$  roslaunch bring_up mapping_justinaCN.launch
 \end{verbatim}
 
-Si se utiliza a JustinaNL, ejecute el comando:
+Si se utiliza a Winter Justina, ejecute el comando:
 \begin{verbatim}
-roslaunch bring_up mapping_justinaNL
+$  roslaunch bring_up mapping_justina_winter.launch
 \end{verbatim}
 
 En ambos casos se ejecutarán varios nodos, de los cuales, los más importantes son: \texttt{gmapping}, \texttt{hokuyo\_node} y \texttt{mobile\_base}. El visualizador debe mostrar algo parecido a la figura \ref{fig:rviz}.
@@ -97,11 +97,13 @@ Las bases móbiles se teleoperan con el \textit{stick} derecho del joystick. Par
 
 Si el mapa dibujado en el visualizador comienza a mostrar espacios incongruentes será necesario comenzar el mapeo nuevamente. Basta con detener el proceso y ejecutar nuevamente el comando \texttt{roslaunch}. Es probable que se requieran varios intentos para obtener un buen mapa. 
 
-Una vez que se ha mapeado todo el espacio deseado, ejecute, \textbf{desde otra terminal, sin detener los procesos previos}, el siguiente comando:
+Una vez que se ha mapeado todo el espacio deseado, ejecute, \textbf{desde otra terminal, sin detener los procesos previos}, los siguientes comandos:
 \begin{verbatim}
-rosrun map_server map_saver -f ~/RoboticsCourses/catkin_ws/src/student/biorobotics_map
+$  mkdir -p ~/RoboticsCourses/catkin_ws/src/student
+$  cd ~/RoboticsCourses/catkin_ws/src/student
+$  rosrun map_server map_saver -f biorobotics_map
 \end{verbatim}
-Este comando guarda el mapa en la carpeta \texttt{student} (creada en clase); dicho mapa se guarda en dos archivos, uno con extensión \texttt{.pgm} (el mapa en sí), que puede ser abierto por un visualizador de imágenes, y un archivo \texttt{.yaml}, que contiene información relativa al mapa. 
+Este comando guarda el mapa en la carpeta \texttt{student}; dicho mapa se guarda en dos archivos, uno con extensión \texttt{.pgm} (el mapa en sí), que puede ser abierto por un visualizador de imágenes, y un archivo \texttt{.yaml}, que contiene información relativa al mapa. 
 
 Compare la imagen con el ambiente real. Si la representación no es suficientemente buena, repita el proceso completo. La figura \ref{fig:mapa} es un ejemplo de un mapa obtenido con este proceso. 
 

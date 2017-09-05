@@ -117,14 +117,17 @@ def main(portName, simulated):
             if not simulated:
                 leftSpeed = int(leftSpeed*127)
                 rightSpeed = int(rightSpeed*127)
-                if leftSpeed >= 0:
-                    Roboclaw.ForwardM2(address, leftSpeed)
-                else:
-                    Roboclaw.BackwardM2(address, -leftSpeed)
-                if rightSpeed >= 0:
-                    Roboclaw.ForwardM1(address, rightSpeed)
-                else:
-                    Roboclaw.BackwardM1(address, -rightSpeed)
+                try:
+                    if leftSpeed >= 0:
+                        Roboclaw.ForwardM2(address, leftSpeed)
+                    else:
+                        Roboclaw.BackwardM2(address, -leftSpeed)
+                    if rightSpeed >= 0:
+                        Roboclaw.ForwardM1(address, rightSpeed)
+                    else:
+                        Roboclaw.BackwardM1(address, -rightSpeed)
+                except:
+                    print "MOBILE BASE.->Error while sending speeds to Roboclaw"
         else:
             speedCounter -= 1
             if speedCounter == 0:
@@ -137,9 +140,12 @@ def main(portName, simulated):
             if speedCounter < -1:
                 speedCounter = -1
         if not simulated:
-            c1, encoderLeft, c2 =  Roboclaw.ReadEncM2(address)
-            d1, encoderRight, d2 = Roboclaw.ReadEncM1(address)
-            Roboclaw.ResetEncoders(address)
+            try:
+                c1, encoderLeft, c2 =  Roboclaw.ReadEncM2(address)
+                d1, encoderRight, d2 = Roboclaw.ReadEncM1(address)
+                Roboclaw.ResetEncoders(address)
+            except:
+                print "MOBILE BASE.->Error while reading encoders"
         else:
             encoderLeft = leftSpeed * 0.1 * 16000 / 0.58
             encoderRight = rightSpeed * 0.1 * 16000 / 0.58        ###Odometry calculation
