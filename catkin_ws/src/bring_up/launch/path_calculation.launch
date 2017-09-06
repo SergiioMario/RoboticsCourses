@@ -11,7 +11,7 @@
            <node name="head" pkg="head" type="head_simul_node.py" output="screen"/>
            <node name="torso" pkg="torso" type="torso_simul_node.py" output="screen"/>
            <node name="joy" pkg="joy" type="joy_node" output="screen"/>
-           <node name="laser_simul" pkg="laser_simulator" type="laser_simulator_node" output="screen"/>
+           <!-- <node name="laser_simul" pkg="laser_simulator" type="laser_simulator_node" output="screen"/> -->
     </group>
 	<group ns="hri">
 	       <node name="rviz" pkg="rviz" type="rviz" args="-d $(find config_files)/rviz_conf/path_calculation.rviz"/>
@@ -22,6 +22,6 @@
 	</group>
     <group ns="navigation">
            <node name="map_server" pkg="map_server" type="map_server" output="screen" 
-                 args="$(env HOME)/RoboticsCourses/catkin_ws/src/student/biorobotics_lab.yaml"/>
+                 args="$(env HOME)/RoboticsCourses/catkin_ws/src/student/nagoya_4.yaml"/>
     </group>
 </launch>
