@@ -22,7 +22,7 @@
 	</group>
     <group ns="navigation">
            <node name="map_server" pkg="map_server" type="map_server" output="screen" 
-                 args="$(env HOME)/RoboticsCourses/catkin_ws/src/student/arena_a.yaml"/>	
+                 args="$(env HOME)/RoboticsCourses/catkin_ws/src/student/nagoya_4.yaml"/>	
            <node name="fake_localization" pkg="fake_localization" type="fake_localization"/> 
     </group>
 </launch>

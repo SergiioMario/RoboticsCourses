@@ -119,8 +119,7 @@ void MainWindow::navBtnCalcPath_pressed()
     if(str.compare("") == 0 || str.compare("robot") == 0) //take robot pose as start position
     {
         this->ui->navTxtStartPose->setText("Robot");
-        //JustinaNavigation::getRobotPose(this->robotX, this->robotY, this->robotTheta);
-	this->qtRosNode->getRobotPose(this->robotX, this->robotY, this->robotTheta);
+        JustinaNavigation::getRobotPose(this->robotX, this->robotY, this->robotTheta);
         startX = this->robotX;
         startY = this->robotY;
         startTheta = this->robotTheta;
@@ -154,11 +153,10 @@ void MainWindow::navBtnCalcPath_pressed()
     else
         goal_location = parts[0];
 
+    
     if(start_location.compare("") == 0 && goal_location.compare("") == 0)
-        this->qtRosNode->planPath(startX, startY, goalX, goalY, this->calculatedPath);
+        JustinaNavigation::calcPathAStar(startX, startY, goalX, goalY, this->calculatedPath);
     /*
-    if(start_location.compare("") == 0 && goal_location.compare("") == 0)
-        JustinaNavigation::planPath(startX, startY, goalX, goalY, this->calculatedPath);
     else if(start_location.compare("") == 0 && goal_location.compare("") != 0)
         JustinaNavigation::planPath(startX, startY, goal_location, this->calculatedPath);
     else if(start_location.compare("") != 0 && goal_location.compare("") == 0)
@@ -572,7 +570,7 @@ void MainWindow::updateGraphicsReceived()
     float rX;
     float rY;
     float rT;
-    //JustinaNavigation::getRobotPose(rX, rY, rT);
+    JustinaNavigation::getRobotPose(rX, rY, rT);
     //std::cout << "MainWindow.->Current pose: " << currentX << "  " << currentY << "  " << currentTheta << std::endl;
     QString robotTxt = "Robot Pose: "+ QString::number(rX,'f',3) + "  " + QString::number(rY,'f',3) + "  " + QString::number(rT,'f',4);
     this->ui->navLblRobotPose->setText(robotTxt);

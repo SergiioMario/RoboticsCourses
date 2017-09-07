@@ -10,6 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   std_msgs
   tf
+  justina_tools
 )
 
 find_package(Qt5Widgets REQUIRED)
