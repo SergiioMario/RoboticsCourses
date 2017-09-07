@@ -252,7 +252,7 @@ void MainWindow::hdPanTiltChanged(double)
     float goalPan = this->ui->hdTxtPan->value();
     float goalTilt = this->ui->hdTxtTilt->value();
     std::cout << "QMainWindow.->Setting new head goal pose: " << goalPan << "  " << goalTilt  << std::endl;
-    ////JustinaHardware::setHeadGoalPose(goalPan, goalTilt);
+    JustinaHardware::setHeadGoalPose(goalPan, goalTilt);
     //JustinaManip::startHdGoTo(goalPan, goalTilt);
 }
 
@@ -314,6 +314,8 @@ void MainWindow::laValuesChanged()
     }
     else
     {
+        if(values.size() == 7)
+            JustinaHardware::setLeftArmGoalPose(values);
 	/*
         if(this->ui->laRbCartesianRobot->isChecked())
             JustinaManip::startLaGoToCartesianWrtRobot(values);
@@ -348,6 +350,8 @@ void MainWindow::raValuesChanged()
     }
     else
     {
+        if(values.size() == 7)
+            JustinaHardware::setRightArmGoalPose(values);
         /*if(this->ui->raRbCartesianRobot->isChecked())
             JustinaManip::startRaGoToCartesianWrtRobot(values);
         else if(this->ui->raRbCartesian->isChecked())
@@ -580,7 +584,7 @@ void MainWindow::updateGraphicsReceived()
 
     float pan;
     float tilt;
-    //JustinaHardware::getHeadCurrentPose(pan, tilt);
+    JustinaHardware::getHeadCurrentPose(pan, tilt);
     QString headTxt = QString::number(pan, 'f', 4) + "  " + QString::number(tilt, 'f', 4);
     this->ui->hdLblHeadPose->setText(headTxt);
     this->headPan = pan;
