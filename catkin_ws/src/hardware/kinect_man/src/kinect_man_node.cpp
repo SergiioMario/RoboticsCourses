@@ -70,6 +70,23 @@ void downsample_by_3(sensor_msgs::PointCloud2& src, sensor_msgs::PointCloud2& ds
             memcpy(&dst.data[16*(j*dst.width + i)], &src.data[48*(j*src.width + i)], 16);
 }
 
+void bgr_from_pointcloud_resized(sensor_msgs::PointCloud2::Ptr msg, cv::Mat& resized)
+{
+    //This function gets an rgb image from a point_cloud message and resize it to 320x240
+    resized = cv::Mat(240, 320, CV_8UC3);
+    int idx;
+    int idx_resized;
+    for(int i=0; i < resized.rows; i++)
+        for(int j=0; j < resized.cols; j++)
+        {
+            idx = 3*(i*resized.cols + j);
+            idx_resized = 32*(i*msg->width + j);
+            resized.data[idx    ] = msg->data[idx_resized + 12];
+            resized.data[idx + 1] = msg->data[idx_resized + 13];
+            resized.data[idx + 2] = msg->data[idx_resized + 14];
+        }
+}
+
 bool kinectRgbd_callback(point_cloud_manager::GetRgbd::Request &req, point_cloud_manager::GetRgbd::Response &resp)
 {
     if(!use_bag)
@@ -235,6 +252,12 @@ int main(int argc, char** argv)
                 {
                     downsample_by_3(msgCloudRobot, msgDownsampled);
                     pubDownsampled.publish(msgDownsampled);
+                }
+                if(pubCompressed.getNumSubscribers() > 0)
+                {
+                    bgr_from_pointcloud_resized(msgFromBag, bgrResized);
+                    cv::imencode(".jpg", bgrResized, msgCompressed.data, compressionParams);
+                    pubCompressed.publish(msgCompressed);
                 }
                 ros::spinOnce();
                 loop.sleep();

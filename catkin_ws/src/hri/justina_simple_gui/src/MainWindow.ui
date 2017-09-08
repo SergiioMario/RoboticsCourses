@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>640</width>
+    <width>645</width>
     <height>514</height>
    </rect>
   </property>
@@ -40,7 +40,7 @@ QRadioButton::indicator{
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>640</width>
+      <width>645</width>
       <height>511</height>
      </rect>
     </property>
@@ -54,7 +54,7 @@ QRadioButton::indicator{
      <widget class="QGroupBox" name="gbNavig">
       <property name="geometry">
        <rect>
-        <x>330</x>
+        <x>335</x>
         <y>220</y>
         <width>301</width>
         <height>151</height>
@@ -570,7 +570,7 @@ QRadioButton::indicator{
      <widget class="QGroupBox" name="gbHead">
       <property name="geometry">
        <rect>
-        <x>330</x>
+        <x>335</x>
         <y>0</y>
         <width>301</width>
         <height>101</height>
@@ -708,7 +708,7 @@ QRadioButton::indicator{
      <widget class="QGroupBox" name="gbSpeech">
       <property name="geometry">
        <rect>
-        <x>330</x>
+        <x>335</x>
         <y>110</y>
         <width>301</width>
         <height>101</height>
@@ -780,7 +780,7 @@ QRadioButton::indicator{
      <widget class="QGroupBox" name="gbTorso">
       <property name="geometry">
        <rect>
-        <x>330</x>
+        <x>335</x>
         <y>370</y>
         <width>301</width>
         <height>101</height>
@@ -936,8 +936,8 @@ QRadioButton::indicator{
        <rect>
         <x>5</x>
         <y>0</y>
-        <width>320</width>
-        <height>240</height>
+        <width>325</width>
+        <height>245</height>
        </rect>
       </property>
      </widget>
@@ -954,7 +954,7 @@ QRadioButton::indicator{
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="btnGrpRightArm"/>
   <buttongroup name="btnGrpLeftArm"/>
+  <buttongroup name="btnGrpRightArm"/>
  </buttongroups>
 </ui>
