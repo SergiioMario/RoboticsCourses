@@ -3,6 +3,8 @@
 
 #include <iostream>
 #include <QMainWindow>
+#include <QtWidgets>
+#include <QtGui>
 #include <ros/package.h>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/split.hpp>
@@ -39,6 +41,10 @@ public:
     int laLastRadioButton;
     int raLastRadioButton;
     nav_msgs::Path calculatedPath;
+
+    QGraphicsScene* scCamera;
+    QGraphicsPixmapItem* giCamera;
+    QPixmap pmCamera;
   
     void setRosNode(QtRosNode* qtRosNode);
     void closeEvent(QCloseEvent *event);

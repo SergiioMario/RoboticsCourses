@@ -13,7 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   justina_tools
 )
 
-find_package(Qt5Widgets REQUIRED)
+find_package(Qt5Widgets REQUIRED) 
 
 if (Qt5Widgets_FOUND)
     if (Qt5Widgets_VERSION VERSION_LESS 5.0)

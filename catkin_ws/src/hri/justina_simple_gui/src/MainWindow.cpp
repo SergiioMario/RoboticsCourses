@@ -11,6 +11,9 @@ MainWindow::MainWindow(QWidget *parent) :
     this->ui->raRbArticular->setChecked(true);
     this->laLastRadioButton = 0;
     this->raLastRadioButton = 0;
+    this->scCamera = new QGraphicsScene(0,0,320,240, ui->graphicsViewCamera);
+    this->giCamera = scCamera->addPixmap(pmCamera);
+    ui->graphicsViewCamera->setScene(this->scCamera);
 
     //Navigation
     QObject::connect(ui->navTxtStartPose, SIGNAL(returnPressed()), this, SLOT(navBtnCalcPath_pressed()));
@@ -613,5 +616,6 @@ void MainWindow::updateGraphicsReceived()
     if(JustinaManip::isTorsoGoalReached())
         this->ui->trsLblStatus->setText("Status: Goal Reached!");*/
 
-    
+    pmCamera.loadFromData(qtRosNode->imgCompressed.data(), qtRosNode->imgCompressed.size(), "JPG");
+    giCamera->setPixmap(pmCamera);
 }

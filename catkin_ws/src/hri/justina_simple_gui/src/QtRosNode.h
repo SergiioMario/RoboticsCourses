@@ -3,6 +3,7 @@
 #include <cmath>
 #include <QThread>
 #include "ros/ros.h"
+#include "std_msgs/UInt8MultiArray.h"
 #include "nav_msgs/Path.h"
 #include "nav_msgs/GetMap.h"
 #include "navig_msgs/CalculatePath.h"
@@ -19,12 +20,15 @@ public:
     ~QtRosNode();
 
     ros::NodeHandle* n;
+    ros::Subscriber subImgCompressed;
     
     bool gui_closed;
+    std::vector<uchar> imgCompressed;
     
     void run();
     void setNodeHandle(ros::NodeHandle* nh);
 
+    void callbackImageCompressed(const std_msgs::UInt8MultiArray::ConstPtr& msg);
     
 signals:
     void updateGraphics();

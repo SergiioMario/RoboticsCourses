@@ -931,7 +931,7 @@ QRadioButton::indicator{
        </property>
       </widget>
      </widget>
-     <widget class="QGraphicsView" name="graphicsView">
+     <widget class="QGraphicsView" name="graphicsViewCamera">
       <property name="geometry">
        <rect>
         <x>5</x>
@@ -954,7 +954,7 @@ QRadioButton::indicator{
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="btnGrpLeftArm"/>
   <buttongroup name="btnGrpRightArm"/>
+  <buttongroup name="btnGrpLeftArm"/>
  </buttongroups>
 </ui>
