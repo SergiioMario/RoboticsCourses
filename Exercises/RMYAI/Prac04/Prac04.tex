@@ -56,6 +56,7 @@ previo(nodo\_inicial) $\leftarrow \varnothing$\;
   }
   \ForEach{nodo\_vecino de nodo\_actual}
   {
+    \textit{//Los nodos vecinos se obtienen con conectividad cuatro}\;
     \If{nodo\_vecino $\in$ Cerrado}{Continuar con el siguiente nodo\_vecino}
     \eIf{nodo\_vecino $\in$ Abierto}
     {
@@ -93,6 +94,10 @@ previo(nodo\_inicial) $\leftarrow \varnothing$\;
 \label{alg:AStar}
 \end{algorithm}
 
+El valor $g$ asociado a cada nodo $n$ representa el costo para llegar a $n$ desde el nodo inicial. Como se puede observar en el algoritmo \ref{alg:AStar}, dicho costo se calcula a partir de la distancia $d(n_1,n_2)$ entre dos nodos. Como primera aproximación se puede utilizar la distancia euclidiana, sin embargo, dado que se está trabajando con celdas de ocupación y se emplea conectividad cuatro, la distancia se puede calcular como un entero que incrementa su valor en uno con respecto al nodo anterior.
+
+La heurística $h(nodo_{vecino}, nodo_{meta})$ también puede calcularse mediante distancia euclidiana, sin embargo, dado que se usa conectividad cuatro, el costo computacional se reduce si se emplea \textit{Distancia de Manhattan} y dicha distancia se expresa en número de celdas. 
+
 \section{Desarrollo}
 
 \subsection{Prerrequisitos}
@@ -112,11 +117,11 @@ Con el objetivo de facilitar las pruebas, se ha incluido un paquete llamado \tex
    ---
    nav_msgs/Path path
 \end{verbatim}
-La idea es utilizar este servicio en el nodo que calcula las rutas mediante A*. 
+Como se muestra en el algoritmo \ref{alg:AStar}, los datos de entrada para A* constan de un grafo, un nodo inicial y uno final. Como resultado se obtiene una secuencia de nodos que representan la ruta óptima. El servicio \texttt{CalculatePath} contiene todos los datos necesarios para ejecutar A*, sólo es necesario traducir las posiciones en coordenadas métricas a índices en el conjunto de celdas de ocupación y viceversa. 
 
-El paquete \texttt{map\_server} contiene un nodo del mismo nombre que publica periódicamente un mapa de celdas de ocupación y atiende un servicio con el que se puede obtener dicho mapa. Este nodo recibe por parámetro el nombre del archivo \texttt{.yaml} que contiene la información sobre el mapa a utilizar, en este caso, \texttt{biorobotics\_lab.yaml}. 
+El paquete \texttt{map\_server} contiene un nodo del mismo nombre que publica periódicamente un mapa de celdas de ocupación y atiende un servicio con el que se puede obtener dicho mapa. Este nodo recibe por parámetro el nombre del archivo \texttt{.yaml} que contiene la información sobre el mapa a utilizar, en este caso, \texttt{biorobotics\_lab.yaml} (o bien el nombre del mapa construido en la práctica 3). 
 
-También se ha incluido una interfaz gráfica sencilla para facilitar el llamado del servicio \texttt{navig\_msgs/CalculatePath}. Esta interfaz se encuentra en en \texttt{catkin\_ws/src/hri/justina\_simple\_gui} y la figura \ref{fig:gui} muestra una captura de pantalla de ella. Cuando se presiona \texttt{enter} en alguno de los campos del cuadro \textit{Mobile base and navigation}, este programa llama al servicio de nombre \texttt{/navigation/a\_star} de tipo \texttt{navig\_msgs/CalculatePath} con los datos correspondientes en la parte de la petición (\texttt{start\_pose, goal\_pose} y \texttt{map}).
+Para facilitar el llamado del servicio \texttt{navig\_msgs/CalculatePath} se ha incluido una interfaz gráfica que se encuentra en \texttt{catkin\_ws/src/hri/justina\_simple\_gui}. La figura \ref{fig:gui} muestra una captura de pantalla de ella. Cuando se presiona \texttt{enter} en alguno de los campos del cuadro \textit{Mobile base and navigation}, este programa llama al servicio de nombre \texttt{/navigation/a\_star} de tipo \texttt{navig\_msgs/CalculatePath} con los datos correspondientes en la parte de la petición (\texttt{start\_pose, goal\_pose} y \texttt{map}).
 \begin{figure}
 \centering
 \includegraphics[width=0.65\textwidth]{Figures/gui.jpg}
@@ -124,20 +129,17 @@ También se ha incluido una interfaz gráfica sencilla para facilitar el llamado
 \label{fig:gui}
 \end{figure}
 
-Para correr todos los nodos necesarios (\texttt{map\_server, justina\_simple\_gui}) ejecute el comando
+Para correr todos los nodos necesarios (\texttt{map\_server, justina\_simple\_gui}, etc.) ejecute el comando
 \begin{verbatim}
-   roslaunch bring_up path_calculation.launch
+   roslaunch bring_up hardware_simul.launch
 \end{verbatim}
 
 \subsection{Nodo que calcula y publica la ruta}
-Crear un paquete de ROS con el nombre \texttt{path\_calculator} que tenga las siguientes características:
+Cree un nuevo paquete de ROS con el nombre \texttt{path\_calculator} que tenga las siguientes características:
 \begin{itemize}
 \item Atender un servicio con el nombre \texttt{/navigation/a\_star}, de tipo \texttt{navig\_msgs/CalculatePath}, que calcule una ruta a partir de un mapa y posiciones inicial y final. 
-\item La respuesta del servicio debe corresponder al éxito al calcular la trayectoria y la ruta resultante debe asignarse a la parte de respuesta del servicio.
-\item En el \textit{callback} del servicio se deben ejecutar los algoritmos expuestos en la sección anterior: crecimiento de los obstáculos, cálculo de la ruta mediante A* y suavizado de la ruta (en ese orden).
-\item Los obstáculos deben crecerse un número de celdas que equivalga a cuando menos 30 [cm].
-\item Es tarea del alumno calcular los parámetros $\alpha$, $\beta$ y $\delta$ para el suavizado de la ruta.
-\item El nodo debe publicar de manera periódica la última ruta calculada. El nombre del tópico debe ser \texttt{/navigation/a\_star\_path} de tipo \texttt{/nav\_msgs/Path}.
+\item El valor de retorno del servicio (\textit{true, false}) debe corresponder al éxito al calcular la ruta resultante y ésta debe asignarse a la parte de la respuesta (\textit{CalculatePath::Response}) del servicio.
+\item El nodo debe publicar de manera periódica la última ruta calculada. El nombre del tópico debe ser \texttt{/navigation/a\_star\_path} de tipo \texttt{/nav\_msgs/Path}. Esto con el objetivo de poder desplegar la ruta calculada en el visualizador \textit{rviz}.
 \item Todos los algoritmos deben estar contenidos en funciones o métodos bien definidos. No debe haber \textit{código espagueti}.
 \end{itemize}
 
@@ -154,9 +156,7 @@ La figura \ref{fig:path} muestra un ejemplo del resultado esperado en \texttt{rv
 \item El cálculo debe ser rápido (retardo no perceptible para un humano). 
 \item El programa debe verificar que  inicio y meta NO estén en el espacio ocupado.
 \item Se probabará con varios pares de posiciones iniciales y finales aleatorias.
-\item Los parámetros de suavizado y el número de celdas que se aumenta a los obstáculos deben poderse cambiar fácilmente.
-\item No es necesario que los valores anteriores se puedan cambiar en tiempo de ejecución. 
-\item Las posiciones iniciales y finales sí se deben poder cambiar en tiempo de ejecución y se fijarán haciendo uso de la GUI.
+\item Las posiciones iniciales y finales se deben poder cambiar en tiempo de ejecución y se fijarán haciendo uso de la GUI.
 \item El código debe estar ordenado.
 \item \textbf{Importante: } Si el alumno no conoce su código, NO se contará la práctica.
 \end{itemize}
