@@ -15,16 +15,16 @@
 \newcommand\ddfrac[2]{\frac{\displaystyle #1}{\displaystyle #2}}
 \DeclareMathOperator{\atantwo}{atan2}
 
-\title{Práctica 6  \\ Control de posición y seguimiento de trayectorias}
-\author{M.I. Marco Negrete}
+\title{Práctica 6  \\ Control de posición y seguimiento de rutas}
+\author{Laboratorio de Bio-Robótica}
 \date{Robots Móviles y Agentes Inteligentes}
 \begin{document}
 \renewcommand{\tablename}{Tabla}
 \maketitle
 \section*{Objetivos}
 \begin{itemize}
-\item Implementar un control de posición y de seguimiento de trayectoria. 
-\item Probar el control tanto en simulación como experimentalmente.
+\item Implementar un control de posición y de seguimiento de rutas. 
+\item Probar el control tanto en simulación como en el robot real.
 \item Utilizar como referencia la ruta calculada en la práctica 5.
 \end{itemize}
 
@@ -49,7 +49,7 @@ Para lidiar con las incertidumbres que provocan todas estas dinámicas no modela
 \end{figure}
 
 \subsection{Control de posición}
-La idea del control es diseñar las señales $v_l$ y $v_r$ de modo que se garantice que el robot llegue a la posición $\left(x_g, y_g\right)$ aun en presencia de incertidumbres (como las dinámicas no modeladas) y perturbaciones. En esta práctica se implementarán dos leyes de control, pero antes es necesario definir un par de variables. 
+El objetivo del control es diseñar las señales $v_l$ y $v_r$ de modo que se garantice que el robot llegue a la posición $\left(x_g, y_g\right)$ aun en presencia de incertidumbres (como las dinámicas no modeladas) y perturbaciones. En esta práctica se implementarán dos leyes de control, pero antes es necesario definir un par de variables. 
 
 Considérese el esquema de la figura \ref{fig:Coords}. El ángulo deseado $\theta_g$ corresponde al ángulo del vector de error de posición $\left[x_g - x_r, y_g - y_r\right]$, esto es
 \[\theta_g = \atantwo\left(y_g - y_r, x_g - x_r\right)\]
@@ -73,9 +73,18 @@ v_{l} &=& v_{max}e^{-\frac{e_{\theta}^{2}}{\alpha}} +
 v_{r} &=& v_{max}e^{-\frac{e_{\theta}^{2}}{\alpha}} -
 \frac{D}{2}\omega_{max}\left(\frac{2}{1+e^{-\frac{e_{\theta}}{\beta}}}-1\right)\label{eq:Control22}
 \end{eqnarray}
-En estas ecuaciones se tienen cuatro parámetros de diseño: $\v_{max}$ y $\omega_{max}$ son las velocidades lineales y angulares máximas respectivamente que el robot alcanzará durante su movimiento. La constante $\alpha$ tiene una función parecida a la $\psi$ en las ecuaciones (\ref{eq:Control11})-(\ref{eq:Control12}), solo que en este caso, al estar dividiendo, una $alpha$ más pequeña provocará un descenso más pronunciado en la magnitud de la velocidad lineal. El valor de $\beta$ determina qué tanto decrece la velocidad angular conforme decrece el error de ángulo. 
+En estas ecuaciones se tienen cuatro parámetros de diseño: $v_{max}$ y $\omega_{max}$ son las velocidades lineales y angulares máximas respectivamente que el robot alcanzará durante su movimiento. La constante $\alpha$ tiene una función parecida a la $\psi$ en las ecuaciones (\ref{eq:Control11})-(\ref{eq:Control12}), solo que en este caso, al estar dividiendo, una $\alpha$ más pequeña provocará un descenso más pronunciado en la magnitud de la velocidad lineal. El valor de $\beta$ determina qué tanto decrece la velocidad angular conforme decrece el error de ángulo. 
 
-Esta ley de control tiene la des
+Esta ley de control tiene la desventaja de que sólo depende del error de ángulo, es decir, que el robot no disminuye su velocidad conforme se acerca al punto meta, como en (\ref{eq:Control11})-(\ref{eq:Control12}). Esto provoca que el robot presente fuertes oscilaciones cuando se encuentra en una región pequeña alrededor del punto meta.
+
+Hay dos formas de abordar este problema. La más sencilla consiste en ejecutar la ley de control sólo si la distancia $d=\sqrt{(x_g - x_r)^2 + (y_g - y_r)^2}$ es mayor que una tolerancia, es decir:
+
+\[
+  \left[\begin{tabular}{c}$v_l$ \\ $v_r$ \end{tabular}\right] =
+  \begin{cases}
+    
+    \end{cases}
+\]
 
 \subsection{Perfil de velocidad}
 
