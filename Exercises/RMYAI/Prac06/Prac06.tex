@@ -49,54 +49,112 @@ Para lidiar con las incertidumbres que provocan todas estas dinámicas no modela
 \end{figure}
 
 \subsection{Control de posición}
-El objetivo del control es diseñar las señales $v_l$ y $v_r$ de modo que se garantice que el robot llegue a la posición $\left(x_g, y_g\right)$ aun en presencia de incertidumbres (como las dinámicas no modeladas) y perturbaciones. En esta práctica se implementarán dos leyes de control, pero antes es necesario definir un par de variables. 
+El objetivo del control es diseñar las señales $v_l$ y $v_r$ de modo que se garantice que el robot llegue a la posición $\left(x_g, y_g\right)$ aun en presencia de incertidumbres (como las dinámicas no modeladas) y perturbaciones. En esta práctica se implementará un control no lineal para lo cual es necesario definir algunas variables.
 
-Considérese el esquema de la figura \ref{fig:Coords}. El ángulo deseado $\theta_g$ corresponde al ángulo del vector de error de posición $\left[x_g - x_r, y_g - y_r\right]$, esto es
+Considérese el esquema de la figura \ref{fig:Coords}. El ángulo deseado $\theta_g$ corresponde al ángulo del vector de error de posición $\left[x_g - x_r, y_g - y_r\right]^T$, esto es
 \[\theta_g = \atantwo\left(y_g - y_r, x_g - x_r\right)\]
 de donde se define el error de ángulo
-\[e_{\theta} = \theta_g - \theta_r = \atantwo\left(y_g - y_r, x_g - x_r\right) - \theta_r\]
+\begin{equation}
+  e_{\theta} = \theta_g - \theta_r = \atantwo\left(y_g - y_r, x_g - x_r\right) - \theta_r \label{eq:AngleError}
+\end{equation}
+Es importante que $e_{\theta}$, al igual que cualquier otra medida angular, se encuentre siempre en el intervalo $(-\pi, \pi]$. Si la diferencia dada en (\ref{eq:AngleError}) resulta en un ángulo mayor que $\pi$  o menor que $-\pi$, se debe hacer el ajuste correspondiente para que $e_{\theta} \in (-\pi, \pi]$  y así se asegure el buen funcionamiento de las leyes de control.
+
 El error de distancia $r$ es simplemente la magnitud del vector de error de posición:
 \[r= \left[\left(x_g - x_r\right) + \left(y_g - y_r\right)\right]^{1/2}\]
-En la primera ley de control las velocidades se calculan tomando en cuenta tanto el error de posición como el de ángulo:
-\begin{eqnarray}
-v_{l} &=& -k_{\theta}e_{\theta} + k_d r e^{-\psi e_{\theta}^2}\label{eq:Control11}\\
-v_{r} &=&  k_{\theta}e_{\theta} + k_d r e^{-\psi e_{\theta}^2}\label{eq:Control12}
-\end{eqnarray}
-Nótese que los primeros términos tienen igual magnitud pero signo opuesto, lo que provoca una velocidad angular que es proporcional al error de ángulo. Los segundos términos, al tener el mismo signo y misma magnitud, provocan una velocidad lineal que es proporcional al error de distancia, es decir, el robot se irá deteniendo conforme se acerque al punto meta. La exponencial sirve para hacer pequeña la velocidad lineal cuando el error de ángulo es grande, es decir, este término logra que el robot comience a avanzar hasta que esté apuntando en la dirección correcta.
 
-En esta ley de control se tienen tres parámetros de diseño: $k_{\theta}>0$, $k_d>0$ y $\psi>0$. Las dos primeras determinan la rapidez con que el robot girará y avanzará hacia el punto meta. La tercera es muy importante. Un valor de $\psi$ muy grande hará que la velocidad lineal decrezca muy rápido cuando crece el error de ángulo, es decir, el robot comenzará a avanzar hasta que esté apuntando casi sin error hacia la meta. Por el contrario, una $\psi$ muy pequeña hará que el robot describa curvas muy grandes.  
+% En la primera ley de control las velocidades se calculan tomando en cuenta tanto el error de posición como el de ángulo:
+%\begin{eqnarray}
+%v_{l} &=& -k_{\theta}e_{\theta} + k_d r e^{-\psi e_{\theta}^2}\label{eq:Control11}\\
+%v_{r} &=&  k_{\theta}e_{\theta} + k_d r e^{-\psi e_{\theta}^2}\label{eq:Control12}
+%\end{eqnarray}
+%Nótese que los primeros términos tienen igual magnitud pero signo opuesto, lo que provoca una velocidad angular que es proporcional al error de ángulo. Los segundos términos, al tener el mismo signo y misma magnitud, provocan una velocidad lineal que es proporcional al error de distancia, es decir, el robot se irá deteniendo conforme se acerque al punto meta. La exponencial sirve para hacer pequeña la velocidad lineal cuando el error de ángulo es grande, es decir, este término logra que el robot comience a avanzar hasta que esté apuntando en la dirección correcta.
 
-La segunda ley de control sólo toma en cuenta el error de ángulo:
+%En esta ley de control se tienen tres parámetros de diseño: $k_{\theta}>0$, $k_d>0$ y $\psi>0$. Las dos primeras determinan la rapidez con que el robot girará y avanzará hacia el punto meta. La tercera es muy importante. Un valor de $\psi$ muy grande hará que la velocidad lineal decrezca muy rápido cuando crece el error de ángulo, es decir, el robot comenzará a avanzar hasta que esté apuntando casi sin error hacia la meta. Por el contrario, una $\psi$ muy pequeña hará que el robot describa curvas muy grandes.  
+
+Si se considera un robot diferencial cuyo modelo está dado por (\ref{eq:Kinematic1})-(\ref{eq:Kinematic3}), entonces la ley de control dada por 
 \begin{eqnarray} 
 v_{l} &=& v_{max}e^{-\frac{e_{\theta}^{2}}{\alpha}} + 
-\frac{D}{2}\omega_{max}\left(\frac{2}{1+e^{-\frac{e_{\theta}}{\beta}}}-1\right)\label{eq:Control21}\\
+\frac{L}{2}\omega_{max}\left(\frac{2}{1+e^{-\frac{e_{\theta}}{\beta}}}-1\right)\label{eq:Control21}\\
 v_{r} &=& v_{max}e^{-\frac{e_{\theta}^{2}}{\alpha}} -
-\frac{D}{2}\omega_{max}\left(\frac{2}{1+e^{-\frac{e_{\theta}}{\beta}}}-1\right)\label{eq:Control22}
+\frac{L}{2}\omega_{max}\left(\frac{2}{1+e^{-\frac{e_{\theta}}{\beta}}}-1\right)\label{eq:Control22}
 \end{eqnarray}
-En estas ecuaciones se tienen cuatro parámetros de diseño: $v_{max}$ y $\omega_{max}$ son las velocidades lineales y angulares máximas respectivamente que el robot alcanzará durante su movimiento. La constante $\alpha$ tiene una función parecida a la $\psi$ en las ecuaciones (\ref{eq:Control11})-(\ref{eq:Control12}), solo que en este caso, al estar dividiendo, una $\alpha$ más pequeña provocará un descenso más pronunciado en la magnitud de la velocidad lineal. El valor de $\beta$ determina qué tanto decrece la velocidad angular conforme decrece el error de ángulo. 
+asegura que el robot alcance la posición deseada $\left(x_g, y_g\right)^T$. Estas ecuaciones también se pueden escribir en términos de las velocidades lineal y angular del robot dadas por:
+\begin{eqnarray*}
+  v      &=& v_{max}e^{-\frac{e_{\theta}^{2}}{\alpha}}\\
+  \omega &=& \omega_{max}\left(\frac{2}{1+e^{-\frac{e_{\theta}}{\beta}}}-1\right)
+\end{eqnarray*}
 
-Esta ley de control tiene la desventaja de que sólo depende del error de ángulo, es decir, que el robot no disminuye su velocidad conforme se acerca al punto meta, como en (\ref{eq:Control11})-(\ref{eq:Control12}). Esto provoca que el robot presente fuertes oscilaciones cuando se encuentra en una región pequeña alrededor del punto meta.
+  En la ley de control (\ref{eq:Control21})-(\ref{eq:Control22}) se tienen cuatro parámetros de diseño. $v_{max}$ y $\omega_{max}$ son las velocidades lineales y angulares máximas respectivamente que el robot alcanzará durante su movimiento. Estos parámetros, en principio,  se pueden fijar arbitrariamente, sin embargo, al implementarse en un robot real, deberán ser congruentes con las capacidades de los actuadores del robot.
 
-Hay dos formas de abordar este problema. La más sencilla consiste en ejecutar la ley de control sólo si la distancia $d=\sqrt{(x_g - x_r)^2 + (y_g - y_r)^2}$ es mayor que una tolerancia, es decir:
+  Para comprender mejor el funcionamiento de las constantes $\alpha$ y $\beta$, considérese la figura \ref{fig:LinearAndAngular}. 
+
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.45\textwidth]{Figures/LinearSpeed.eps}
+    \includegraphics[width=0.45\textwidth]{Figures/AngularSpeed.eps}
+    \caption{Velocidades lineal y angular para diferentes parámetros $\alpha$ y $\beta$}
+    \label{fig:LinearAndAngular}
+  \end{figure}
+
+  Como se puede observar, la constante $\alpha$ determina qué tan rápido decrece la velocidad lineal $v$ cuando el error de ángulo aumenta. Un $\alpha$ muy pequeña hará que la velocidad decrezca rápidamente, esto es, el robot no avanzará hasta que esté ``apuntando directamente'' hacia el punto meta. En otras palabras, primero girará hasta que el error de ángulo sea muy pequeño y hasta entonces avanzará.
+
+  La constante $\beta$ determina qué tan rápido crece la velocidad angular cuando crece el error de ángulo. En general, una $\beta$  pequeña hará que el robot se mantenga siempre ``apuntando'' hacia el punto meta, es decir, ayudará a seguir mejor una ruta deteminada, sin embargo, si $\beta$  es demasiado pequeña, puede generar oscilaciones. 
+
+  
+La ley de control (\ref{eq:Control21})-(\ref{eq:Control22} tiene la desventaja de que sólo depende del error de ángulo, es decir, que el robot no disminuye su velocidad conforme se acerca al punto meta. Esto provocará que el robot presente fuertes oscilaciones cuando se encuentre en una región pequeña alrededor del punto meta.
+
+Hay dos formas de abordar este problema. La más sencilla consiste en ejecutar la ley de control sólo si la distancia $r=\sqrt{(x_g - x_r)^2 + (y_g - y_r)^2}$ es mayor que una tolerancia $\epsilon$, es decir:
 
 \[
   \left[\begin{tabular}{c}$v_l$ \\ $v_r$ \end{tabular}\right] =
   \begin{cases}
-    
-    \end{cases}
+    \left[
+    \begin{tabular}{c}
+      $v + \frac{L}{2}\omega$ \\
+      $v - \frac{D}{2}\omega$
+    \end{tabular}
+  \right] \qquad \textrm{si} \qquad \sqrt{(x_g - x_r)^2 + (y_g - y_r)^2} > \epsilon \\
+  \\
+  \left[
+    \begin{tabular}{c}$0$\\$0$\end{tabular}
+  \right]  \qquad\qquad \textrm{en otro caso}
+  \end{cases}
 \]
 
-\subsection{Perfil de velocidad}
+En este caso, el robot se detendrá bruscamente cuando la magnitud del error de posición sea menor que $\epsilon$, lo cual no es deseable, pues el robot debería disminuir su velocidad conforme se acerca al punto meta.
+
+Por otra parte, también es deseable que el robot aumente su velocidad poco a poco al inicio del movimiento, lo cual no está considerado hasta el momento, pues de acuerdo con (\ref{eq:Control21})-(\ref{eq:Control22}), el robot puede tener una velocidad lineal de $v_{max}$ desde el comienzo de su trayectoria.
+
+\subsection{Máquina de estados}
+Una forma sencilla de lograr que el robot acelere y desacelere lentamente es mediante una máquina de estados finita aumentada (AFSM por sus siglas en inglés) que vaya estableciendo el valor $v_{max}$ de la ley de control (\ref{eq:Control21})-(\ref{eq:Control22}). Sea $v_{sm}$ la nueva velocidad máxima, de modo que
+\begin{eqnarray}
+  v      &=& v_{sm}e^{-\frac{e_{\theta}^{2}}{\alpha}}\\
+  \omega &=& \omega_{max}\left(\frac{2}{1+e^{-\frac{e_{\theta}}{\beta}}}-1\right)
+\end{eqnarray}
+y
+\begin{eqnarray*}
+  v_l &=& v + \frac{L}{2}\omega\\
+  v_r &=& v - \frac{L}{2}\omega
+\end{eqnarray*}
+
+La figura \ref{fig:AFSM} muestra los pasos para determinar $v_{sm}$. En general, $v_{sm}$ se incrementa poco a poco hasta alcanzar el valor de $v_{max}$ y comienza a decrementarse cuando el robot está ``cerca'' del punto meta, es decir, cuando la distancia $r$ es menor que una constante $r_d$. Los valores de $r_d$ y $\Delta v$ se determinan dependiendo de qué tan rápido el robot debe acelerar y desacelerar. 
+
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.7\textwidth]{Figures/AFSM.pdf}
+  \caption{Máquina de estados para generar un perfil de velocidad}
+  \label{fig:AFSM}
+\end{figure}
 
 \section{Tareas}
 
 \subsection{Prerrequisitos}
 Antes de continuar, actualice el repositorio y recompile:
 \begin{verbatim}
-   cd ~/RoboticsCourses
-   git pull origin master
-   cd catkin_ws
-   catkin_make
+   $  cd ~/RoboticsCourses
+   $  git pull origin master
+   $  cd catkin_ws
+   $  catkin_make
 \end{verbatim}
 
 \subsection{Nodo para el control de bajo nivel}
