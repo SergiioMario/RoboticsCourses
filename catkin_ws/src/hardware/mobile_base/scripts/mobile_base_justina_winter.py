@@ -175,9 +175,9 @@ def main(portName, simulated):
         motorBattery = 18.5
         if not simulated:
            motorBattery = Roboclaw.ReadMainBatteryVoltage(address) #Lectura de voltaje de bateria
-        msgBattery = Float32()
-        msgBattery.data = motorBattery
-        pubBattery.publish(msgBattery)
+        #msgBattery = Float32()
+        #msgBattery.data = motorBattery
+        #pubBattery.publish(msgBattery)
         rate.sleep()
     #End of while
     if not simulated:
