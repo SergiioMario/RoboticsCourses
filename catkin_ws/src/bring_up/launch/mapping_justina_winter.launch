@@ -7,7 +7,9 @@
         <node name="right_arm" pkg="arms" type="right_arm_simul_node.py" output="screen"/>
         <node name="head" pkg="head" type="head_simul_node.py" output="screen" args="--port /dev/ttyUSB0 --baud 1000000"/>
         <node name="torso" pkg="torso" type="torso_simul_node.py" output="screen"/>
-        <node name="joy" pkg="joy" type="joy_node" output="screen"/>
+        <node name="joy" pkg="joy" type="joy_node" output="screen">
+            <param name="dev" value="/dev/input/js0"/>
+        </node>
         <node name="hokuyo_node" pkg="urg_node" type="urg_node" output="screen">
 			<param name="serial_port" type="string" value="/dev/justinaHokuyoRear"/>
 			<param name="frame_id" type="string" value="laser_link"/>

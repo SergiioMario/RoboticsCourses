@@ -170,7 +170,7 @@ void MainWindow::navBtnCalcPath_pressed()
 }
 
 void MainWindow::navBtnExecPath_pressed()
-{
+{/*
     float goalX = 0;
     float goalY = 0;
     float goalTheta;
@@ -212,7 +212,8 @@ void MainWindow::navBtnExecPath_pressed()
         goal_location = parts[0];
         // //this->ui->navLblStatus->setText("Base Status: Moving to goal point...");
         //JustinaNavigation::startGetClose(goal_location);
-    }
+    }*/
+    JustinaNavigation::executePath();
 }
 
 void MainWindow::navMoveChanged()

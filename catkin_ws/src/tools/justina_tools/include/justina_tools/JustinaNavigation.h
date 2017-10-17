@@ -30,6 +30,7 @@ private:
     static ros::Publisher pubSimpleMoveGoalPath;
     static ros::Publisher pubSimpleMoveGoalPose;
     static ros::Publisher pubSimpleMoveGoalRelPose;
+    static ros::Publisher pubExecutePath;
     //Services for path calculator
     static ros::ServiceClient cltGetMap;
     static ros::ServiceClient cltGetPointCloud;
@@ -71,6 +72,7 @@ public:
     static bool collisionRisk();
     static void enableObstacleDetection(bool enable);
     //These methods use the simple_move node
+    static void executePath();
     static void startMoveDist(float distance);
     static void startMoveDistAngle(float distance, float angle);
     static void startMovePath(nav_msgs::Path& path);

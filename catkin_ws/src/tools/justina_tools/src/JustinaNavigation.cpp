@@ -12,6 +12,7 @@ ros::Publisher JustinaNavigation::pubSimpleMoveLateral;
 ros::Publisher JustinaNavigation::pubSimpleMoveGoalPath;
 ros::Publisher JustinaNavigation::pubSimpleMoveGoalPose;
 ros::Publisher JustinaNavigation::pubSimpleMoveGoalRelPose;
+ros::Publisher JustinaNavigation::pubExecutePath;
 //Services for path calculator
 ros::ServiceClient JustinaNavigation::cltGetMap;
 ros::ServiceClient JustinaNavigation::cltGetPointCloud;
@@ -60,6 +61,7 @@ bool JustinaNavigation::setNodeHandle(ros::NodeHandle* nh)
     //pubSimpleMoveGoalPath = nh->advertise<nav_msgs::Path>("/navigation/path_planning/simple_move/goal_path", 1);
     //pubSimpleMoveGoalPose = nh->advertise<geometry_msgs::Pose2D>("/navigation/path_planning/simple_move/goal_pose", 1);
     //pubSimpleMoveGoalRelPose = nh->advertise<geometry_msgs::Pose2D>("/navigation/path_planning/simple_move/goal_rel_pose", 1);
+    pubExecutePath = nh->advertise<std_msgs::Empty>("/navigation/execute_path", 1);
     ////Services for path calculator
     cltGetMap = nh->serviceClient<nav_msgs::GetMap>("/navigation/static_map");
     cltGetPointCloud = nh->serviceClient<point_cloud_manager::GetRgbd>("/hardware/point_cloud_man/get_rgbd_wrt_robot");
@@ -170,6 +172,12 @@ void JustinaNavigation::enableObstacleDetection(bool enable)
 }
 
 //These methods use the simple_move node
+void JustinaNavigation::executePath()
+{
+    std_msgs::Empty msg;
+    pubExecutePath.publish(msg);
+}
+
 void JustinaNavigation::startMoveDist(float distance)
 {
     /*

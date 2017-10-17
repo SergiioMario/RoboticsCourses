@@ -128,8 +128,8 @@ Por otra parte, también es deseable que el robot aumente su velocidad poco a po
 \subsection{Máquina de estados}
 Una forma sencilla de lograr que el robot acelere y desacelere lentamente es mediante una máquina de estados finita aumentada (AFSM por sus siglas en inglés) que vaya estableciendo el valor $v_{max}$ de la ley de control (\ref{eq:Control21})-(\ref{eq:Control22}). Sea $v_{sm}$ la nueva velocidad máxima, de modo que
 \begin{eqnarray}
-  v      &=& v_{sm}e^{-\frac{e_{\theta}^{2}}{\alpha}}\\
-  \omega &=& \omega_{max}\left(\frac{2}{1+e^{-\frac{e_{\theta}}{\beta}}}-1\right)
+  v      &=& v_{sm}e^{-\frac{e_{\theta}^{2}}{\alpha}}\label{eq:NewControl1}\\
+  \omega &=& \omega_{max}\left(\frac{2}{1+e^{-\frac{e_{\theta}}{\beta}}}-1\right)\label{eq:NewControl2}
 \end{eqnarray}
 y
 \begin{eqnarray*}
@@ -137,7 +137,9 @@ y
   v_r &=& v - \frac{L}{2}\omega
 \end{eqnarray*}
 
-La figura \ref{fig:AFSM} muestra los pasos para determinar $v_{sm}$. En general, $v_{sm}$ se incrementa poco a poco hasta alcanzar el valor de $v_{max}$ y comienza a decrementarse cuando el robot está ``cerca'' del punto meta, es decir, cuando la distancia $r$ es menor que una constante $r_d$. Los valores de $r_d$ y $\Delta v$ se determinan dependiendo de qué tan rápido el robot debe acelerar y desacelerar. 
+El control dado por (\ref{eq:NewControl1})-(\ref{eq:NewControl2}) sirve para alcanzar un punto meta $(x_g, y_g)$, sin embargo lo que se desea es seguir una ruta dada por un conjunto de $N$ puntos $(x^p_i, y^p_i)\quad i\in[0, N-1]$. Para seguir esta ruta basta con fijar como punto meta al punto $(x^p_i, y^p_i)$ que se encuentre ``frente al robot'', es decir, aquel punto de la ruta que esté a una distancia pequeña de la posición actual del robot. ``Distancia pequeña'' puede ser entre 20 [cm] y 50 [cm]. 
+
+La figura \ref{fig:AFSM} muestra los pasos para determinar $v_{sm}$ y el punto meta. En general, $v_{sm}$ se incrementa poco a poco hasta alcanzar el valor de $v_{max}$ y comienza a decrementarse cuando el robot está ``cerca'' del último punto de la ruta deseada, es decir, cuando la distancia $r$ es menor que una constante $r_d$. Cuando el robot está a menos de 30 [cm] del punto meta, éste se cambia por el siguiente punto de la ruta. Los valores de $r_d$ y $\Delta v$ se determinan dependiendo de qué tan rápido el robot debe acelerar y desacelerar. 
 
 \begin{figure}[!h]
   \centering
