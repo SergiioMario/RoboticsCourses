@@ -160,16 +160,39 @@ Antes de continuar, actualice el repositorio y recompile:
 \end{verbatim}
 
 \subsection{Nodo para el control de bajo nivel}
-Hacer un nodo de ROS que ...
-La primera ley de control se debe usar para realizar movimientos del tipo move.
-La segunda se debe usar para seguir trayectorias, calculadas con A* y con un perfil de velocidad. 
+Escribir un nodo de ROS para que el robot siga la ruta calculada en la práctica 5. El nodo debe tener las siguientes carácterísticas:
+\begin{itemize}
+\item El nombre del nodo debe ser \texttt{low\_level\_control} y debe estar contenido en un paquete del mismo nombre. 
+\item La ruta a seguir se obtiene del tópico \texttt{/hardware/a\_star\_path}. Este tópico es el mismo que publica el nodo \texttt{path\_calculator} realizado en la práctica 5.
+\item El robot debe comenzar a moverse hasta que se presione el botón \texttt{Exec Path} de la GUI. Al presionar este botón se publica el tópico \texttt{/navigation/execute\_path} de tipo \texttt{std\_msgs::Empty}, por lo que el nodo debe estar suscrito a este tópico. 
+\end{itemize}
 
 \subsection{Pruebas experimentales y en simulación}
-Launch para simulación. Launch para pruebas reales.
+Probar el nodo \texttt{low\_level\_control} en simulación. Para ello:
+\begin{itemize}
+\item Ejecute el comando \texttt{roslaunch bring\_up hardware\_simul.launch}
+\item Ejecute el nodo \texttt{path\_calculator} realizado en la pŕactica 5.
+\item Ejecute el nodo \texttt{low\_level\_control}
+\end{itemize}
+
+Ajuste todos los parámetros necesarios hasta que el robot siga la ruta sin oscilaciones ni movimientos bruscos de ningún tipo. Una vez que se logre esto, pruebe el nodo en el robot real. Para ello:
+
+\begin{itemize}
+\item Encienda el robot y conecte el cable USB etiquetado como ``USB\_Main'' a cualquier puerto de la computadora.
+\item Ejecute el comando \texttt{roslaunch bring\_up hardware\_justina\_winter.launch}
+\item Ejecute el nodo \texttt{path\_calculator} realizado en la pŕactica 5.
+\item Ejecute el nodo \texttt{low\_level\_control}
+\end{itemize}
+
+\textbf{Importante:} recuerde siempre estar atento al movimiento del robot. Si el robot presenta cualquier comportamiento no deseado, \textbf{presione inmediatemente el botón de paro de emergencia}.
 
 \section{Evaluación}
 \begin{itemize}
-\item El control se probará siguiendo la ruta calculada en la práctica 5. 
+\item El control se probará con varias rutas. Los puntos meta se elegirán aleatoriamente.
+\item Para el cálculo de rutas se empleará el nodo hecho en la práctica 5 y el mapa obtenido en la práctica 3.
+\item El movimiento del robot debe ser suave, esto es, no se deben presentar oscilaciones ni cambios bruscos en las velocidades de los motores.
+\item El robot debe acelerar al inicio de la ruta y desacelerar al acercarse al final.
+\item NO puede haber colisiones con ningún objeto. 
 \item Las constantes de las leyes de control deben ser fácilmente modificables. 
 \item El código debe estar ordenado.
 \item \textbf{Importante: } Si el alumno no conoce su código, NO se contará la práctica.
