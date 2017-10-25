@@ -14,6 +14,8 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   std_srvs
   tf
+  tf_conversions
+  pcl_conversions
 )
 
 find_package(PCL 1.2 REQUIRED)
@@ -35,6 +37,7 @@ include_directories(
 add_library(justina_tools
   src/JustinaHardware.cpp
   src/JustinaNavigation.cpp
+  src/JustinaTools.cpp
 )
 
 add_dependencies(justina_tools ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
