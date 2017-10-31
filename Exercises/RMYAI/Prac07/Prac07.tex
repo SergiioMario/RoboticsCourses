@@ -141,12 +141,18 @@ $k \leftarrow 0$\;
 
   $k \leftarrow k + 1$
 }
-  \caption{Descenso del gradiente para mover al robot a través de un campo potencial.}
+  \caption{Evasión de obstáculos por campos potenciales.}
   \label{alg:PotFieldsFinal}
 \end{algorithm}
 
-
 \subsection{El sensor láser Hokuyo-URG}
+La base móvil en la que se harán las pruebas cuenta con un sensor láser cuyas lecturas indican distancia hacia un objeto. Este sensor entrega una nube de puntos sobre un plano y cada punto está expresado en coordenadas polares. La figura ASDFASDFSA muestra esquemáticamente las lecturas del sensor láser. El ángulo de cada lectura está expresado con respecto al robot por lo que para obtener la posición de cada punto con respecto al sistema absoluto, es necesario sumarle el ángulo del robot.
+
+Las lecturas del láser son publicadas por un nodo en el tópico \texttt{/hardware/scan} de tipo \texttt{sensor\_msgs::LaserScan}, el cual, de manera simplificada, tiene la siguiente estructura:
+\begin{verbatim}
+    Header header
+    float32 
+\end{verbatim}
 
 \section{Tareas}
 
