@@ -13,6 +13,7 @@
 \usepackage{amssymb}
 \usepackage{mathtools}
 \newcommand\ddfrac[2]{\frac{\displaystyle #1}{\displaystyle #2}}
+\DeclareMathOperator{\atantwo}{atan2}
 
 \title{Práctica 7  \\ Evasión de obstáculos mediante campos potenciales artificiales}
 \author{Laboratorio de Bio-Robótica}
@@ -111,7 +112,39 @@ $i \leftarrow 0$\;
   \label{alg:PotFields}
 \end{algorithm}
 
-Finalmente, para que el robot se mueva hacia cada punto $q_i$ generado por el descenso del gradiente, se pueden utilizar las leyes de control (\ref{eq:Control21})-(\ref{eq:Control22}).
+Finalmente, para que el robot se mueva hacia cada punto $q_i$ generado por el descenso del gradiente, se pueden utilizar las leyes de control implementadas en la pŕactica 6. Los pasos resultantes para evadir obstáculos mediante campos potenciales artificiales se muestran en el algoritmo \ref{alg:PotFieldsFinal}.
+
+\begin{algorithm}
+\DontPrintSemicolon
+\KwData{Posición inicial $q_s$, posición final $q_g$, posiciones $q_{oi}$ de los obstáculos}
+\KwResult{Secuencia de puntos $\{q_0,q_1, q_2, \dots\}$}
+$q_0 \leftarrow q_s$\;
+$k \leftarrow 0$\;
+\While{$\Vert\nabla U(q_k)\Vert > tol$}
+{
+  $F_a \leftarrow \zeta \ddfrac{\left(q_k - q_g\right) }{\Vert q_k - q_g \Vert}$\;
+  \For{$i\in[0,n]$}
+  {
+  $F_{r_i} \leftarrow \begin{cases}
+    \eta\left(\sqrt{\frac{1}{\Vert q_{oi} - q_k\Vert} - \frac{1}{d_0}}\right)\ddfrac{q_{oi} - q_k}{\Vert q_{oi} - q_k\Vert}
+    & \qquad\textrm{si}\quad \Vert q_{oi} - q_k\Vert < d_0\\
+    0 & \qquad\textrm{en otro caso}
+    \end{cases}$\;
+  }
+  $F \leftarrow F_a + \frac{1}{n}\sum_{i=1}^n F_{r_i}$\;
+  $q_{k+1} \leftarrow q_k - \alpha \ddfrac{F}{\Vert F \Vert}$\;
+  $e_{\theta} \leftarrow \atantwo\left(q_{k+1}^y - y_r, q_{k+1}^x - x_r\right) - \theta_r$\;
+  $v_{l} \leftarrow v_{max}e^{-\frac{e_{\theta}^{2}}{\alpha}} + 
+  \frac{L}{2}\omega_{max}\left(\frac{2}{1+e^{-\frac{e_{\theta}}{\beta}}}-1\right)$\;
+  $v_{r} \leftarrow v_{max}e^{-\frac{e_{\theta}^{2}}{\alpha}} -
+  \frac{L}{2}\omega_{max}\left(\frac{2}{1+e^{-\frac{e_{\theta}}{\beta}}}-1\right)$\;
+
+  $k \leftarrow k + 1$
+}
+  \caption{Descenso del gradiente para mover al robot a través de un campo potencial.}
+  \label{alg:PotFieldsFinal}
+\end{algorithm}
+
 
 \subsection{El sensor láser Hokuyo-URG}
 
