@@ -13,6 +13,7 @@
 #include <boost/filesystem/path.hpp>
 #include "QtRosNode.h"
 #include "justina_tools/JustinaNavigation.h"
+#include "justina_tools/JustinaHRI.h"
 
 namespace Ui {
 class MainWindow;

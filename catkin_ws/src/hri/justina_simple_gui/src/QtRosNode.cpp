@@ -28,6 +28,7 @@ void QtRosNode::setNodeHandle(ros::NodeHandle* nh)
     this->n = nh;
     JustinaHardware::setNodeHandle(nh);
     JustinaNavigation::setNodeHandle(nh);
+    JustinaHRI::setNodeHandle(nh);
 }
 
 void QtRosNode::callbackImageCompressed(const std_msgs::UInt8MultiArray::ConstPtr& msg)

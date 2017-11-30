@@ -38,6 +38,7 @@ add_library(justina_tools
   src/JustinaHardware.cpp
   src/JustinaNavigation.cpp
   src/JustinaTools.cpp
+  src/JustinaHRI.cpp
 )
 
 add_dependencies(justina_tools ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

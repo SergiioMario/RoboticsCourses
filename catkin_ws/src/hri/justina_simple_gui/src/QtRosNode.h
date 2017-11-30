@@ -11,6 +11,7 @@
 #include "tf/transform_listener.h"
 #include "justina_tools/JustinaHardware.h"
 #include "justina_tools/JustinaNavigation.h"
+#include "justina_tools/JustinaHRI.h"
 
 class QtRosNode : public QThread
 {

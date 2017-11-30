@@ -566,7 +566,7 @@ void MainWindow::sprFakeRecognizedChanged()
 {
     std::string strToFake = this->ui->sprTxtFakeRecog->text().toStdString();
     std::cout << "QMainWindow.->Faking recog speech: " << strToFake << std::endl;
-    //JustinaHRI::fakeSpeechRecognized(strToFake);
+    JustinaHRI::fakeRecognizedSpeech(strToFake);
 }
 
 //
