@@ -19,7 +19,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 ## System dependencies are found with CMake's conventions
 #set(ENV{OpenCV_DIR} "/usr/local")
-find_package(OpenCV 3 REQUIRED)
+find_package(OpenCV REQUIRED)
 find_package(PCL 1.2 REQUIRED)
 #set(CMAKE_PREFIX_PATH "/usr/local/")
 #set(OpenCV_LIB_DIR "/usr/local/lib")
@@ -157,7 +157,7 @@ add_dependencies(kinect_man_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EX
 ## Specify libraries to link a library or executable target against
 target_link_libraries(kinect_man_node
    ${catkin_LIBRARIES}
-   #${OpenCV_LIBS}
+   ${OpenCV_LIBS}
    ${PCL_LIBRARIES}
 )
 
