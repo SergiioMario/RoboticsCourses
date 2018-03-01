@@ -24,7 +24,7 @@
 \lstset{commentstyle=\color{codegreen}, keywordstyle=\color{magenta}}
 \lstset{numberstyle=\tiny\color{codegray}, stringstyle=\color{codepurple}}
 
-\title{Práctica 3 \\ Implementación de un nodo de ROS en la tarjeta arduino}
+\title{Práctica 3 \\ Implementación de un nodo de ROS en la tarjeta Arduino Uno}
 \author{Laboratorio de Bio-Robótica}
 \date{Construcción de Robots Móviles}
 \begin{document}
@@ -32,7 +32,7 @@
 \maketitle
 \section*{Objetivos}
 \begin{itemize}
-\item Familiarizar al alumno con la tarjeta de desarrollo Arduino y sus herramientas de desarrollo.
+\item Familiarizar al alumno con la tarjeta de prototipado Arduino y sus herramientas de desarrollo.
 \item Implementar un nodo de ROS en la tarjeta Arduino usando la biblioteca \texttt{rosserial}.
 \item Practicar el uso de publicadores y suscriptores implementados en la tarjeta arduino. 
 \end{itemize}
@@ -52,7 +52,7 @@ Mediante \texttt{rosserial\_arduino} se puede implementar un nodo de ROS en la t
 
 Descargue el IDE de Arduino de la página \url{https://www.arduino.cc/en/Main/Software}. Seleccione la descarga de acuerdo con el sistema que tenga instalado, 32 o 64 bits. 
 
-Descomprima el archivo (se puede hacer mediante un click derecho y la opción \textit{Extract here}), abra una terminal y cambie el directorio de trabajo a la carpeta que se acaba de extraer. Ejecute el archivo \texttt{install.sh}:
+Descomprima el archivo (se puede hacer mediante un click derecho y la opción \textit{Extract here}), abra una terminal y cambie el directorio de trabajo a la carpeta que se acaba de extraer. Ejecute el archivo \texttt{install.sh}.
 
 Suponiendo que el archivo descargado sea \texttt{arduino-1.8.1-linux64.tar.xz} y la carpeta de descargas esté en \texttt{$\sim$/Downloads}, los comandos para instalar el IDE serían:
 \begin{lstlisting}[language=bash]
@@ -65,12 +65,12 @@ $  ./install.sh
 Durante la instalación, seleccione siempre las opciones por default. 
 
 \subsection{Instalación de la biblioteca \texttt{rosserial\_arduino}}
-\textbf{Nota.} Se asume que el alumno ya tiene instalado Ubuntu 14.04 y ROS Indigo. 
+\textbf{Nota.} Se asume que el alumno ya tiene instalado Ubuntu 16.04 y ROS Kinetic. 
 
 En una terminal, teclee los siguientes comandos:
 \begin{lstlisting}
-$  sudo apt-get install ros-indigo-rosserial-arduino
-$  sudo apt-get install ros-indigo-rosserial
+$  sudo apt-get install ros-kinetic-rosserial-arduino
+$  sudo apt-get install ros-kinetic-rosserial
 \end{lstlisting}
 
 Una vez instaladas, es necesario copiar estas bibliotecas al \textit{sketchbook} del IDE de Arduino. La ubicación de esta carpeta se puede ver en el menú \texttt{File->Preferences}. Usualmente, el sketchbook está en \texttt{/home/user\_name/Arduino}. 
