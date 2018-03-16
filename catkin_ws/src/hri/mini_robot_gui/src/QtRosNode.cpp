@@ -27,9 +27,9 @@ QtRosNode::~QtRosNode()
 void QtRosNode::run()
 {    
     ros::Rate loop(30);
-    subSensors = n->subscribe("/minirobot/hardware/sensors", 10, &QtRosNode::callbackSensors, this);
+    subSensors = n->subscribe("/rotombot/hardware/arduino_sensors", 10, &QtRosNode::callbackSensors, this);
     subCompressedImg = n->subscribe("/minirobot/hardware/img_compressed", 10, &QtRosNode::callbackCompressedImage, this);
-    pubSpeeds  = n->advertise<std_msgs::Float32MultiArray>("/minirobot/hardware/motor_speeds", 10);
+    pubSpeeds  = n->advertise<std_msgs::Float32MultiArray>("/rotombot/hardware/motor_speeds", 10);
 
     std_msgs::Float32MultiArray msgSpeeds;
     msgSpeeds.data.push_back(0);
